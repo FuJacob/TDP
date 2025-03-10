@@ -5,12 +5,22 @@ import cors from 'cors'
 import axios from 'axios'
 import Papa from 'papaparse'
 import { createClient } from '@supabase/supabase-js'
+//import { authRouter } from './routes/auth.routes'
+import authRouter from './routes/authRoutes';
+import tenderRouter from './routes/tenderRoutes'
+import { logger } from './middleware/logger.middleware'
+import { delay } from './middleware/delay.middleware';
+import { auth } from './middleware/auth.middleware';
+
+//console.log('Logger:', logger);
+//console.log('Auth Router:', authRouter);
 
 // Initialize Supabase client
 const supabase = createClient(
   process.env.SUPABASE_URL || '',
   process.env.SUPABASE_SERVICE_KEY || ''
 )
+
 
 // Define the target columns to filter the tender notices
 // We need to do this because in our database, the names are forcefully truncated
@@ -63,7 +73,9 @@ const targetColumns = [
 const app = express()
 app.use(cors({ origin: '*' })) // Allow all origins
 app.use(express.json({ limit: '10mb' })) // Limit is 1mb so can parse more tenders
-
+app.use(logger);
+app.use(delay);
+app.use(auth);
 // Initialize OpenAI client
 const openai = new OpenAI({
   baseURL: process.env.GEMINI_BASE_URL,
@@ -395,6 +407,8 @@ app.get('/getOpenTenderNoticesFromDB', async (req, res) => {
   }
 })
 
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/tenders', tenderRouter)
 // Serve static files from the 'assets' folder
 app.use('/assets', express.static(path.join(__dirname, 'assets')))
 

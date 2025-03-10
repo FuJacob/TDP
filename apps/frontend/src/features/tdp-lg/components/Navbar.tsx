@@ -1,18 +1,9 @@
-// const Header = () => {
-//     return (
-//       <header className="bg-gray-900 text-white p-4 text-xl font-bold">
-//         Tender Discovery Platform
-//       </header>
-//     );
-//   };
-  
-//   export default Header;
-  // Navbar.tsx
+// Navbar.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../features/tdp-lg/components/AuthContext';
+import { useAuth } from './AuthContext';
 
-const Header: React.FC = () => {
+const Navbar: React.FC = () => {
   const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
 
@@ -38,7 +29,7 @@ const Header: React.FC = () => {
         alignItems: 'center',
         padding: '1rem',
         borderBottom: '1px solid #ccc',
-      }} className="bg-gray-900 text-white p-4 text-xl font-bold"
+      }}
     >
       <h1 style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
         Wouessi
@@ -72,4 +63,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+export default Navbar;

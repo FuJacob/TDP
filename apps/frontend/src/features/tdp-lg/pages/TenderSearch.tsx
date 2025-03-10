@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchTendersAPI } from "../../api";
-import { ToastContainer, toast } from "react-toastify";
+import { fetchTendersAPI } from "../../../api/api";
 import "react-toastify/dist/ReactToastify.css";
 
 interface Tender {

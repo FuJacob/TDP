@@ -149,7 +149,7 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#2A00B7] to-[#42006C]">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-4">

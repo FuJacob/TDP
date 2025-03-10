@@ -1,4 +1,4 @@
-import axios from './app/util/axios.customize'
+import axios from "../utils/axios.customize";
 
 /**
  * Base URL for API endpoints

@@ -3,8 +3,8 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from '../component/AuthContext';
-import { loginAPI } from '../../api';
+import { useAuth } from '../components/AuthContext';
+import {loginAPI} from '../../../api/api';
 
 type LoginFormData = {
   email: string;

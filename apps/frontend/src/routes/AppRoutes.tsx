@@ -8,6 +8,7 @@ import ForgotResetPassword from "../features/tdp-lg/pages/ForgotResetPassword";
 import Login from "../features/tdp-lg/pages/login";
 import SignUp from "../features/tdp-lg/pages/SignUp";
 import TenderSearch from "../features/tdp-lg/pages/TenderSearch";
+import BidStatusUpdates from '../features/tdp-lg/pages/BidStatusUpdates';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -22,6 +23,7 @@ const AppRoutes = () => {
         <Route path="/forgot-reset-password/:token" element={<ForgotResetPassword />} />
         <Route path="/signUp" element={<SignUp />} />
         <Route path="/tendersearch" element={<TenderSearch />} />
+        <Route path="/bidupdates" element={<BidStatusUpdates />} />
         <Route path="lg" element={<LgMain />} />
         <Route path="ca" element={<CaMain />} />
         <Route path="bm" element={<BmMain />} />

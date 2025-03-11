@@ -5,9 +5,10 @@ import cors from 'cors'
 import axios from 'axios'
 import Papa from 'papaparse'
 import { createClient } from '@supabase/supabase-js'
-//import { authRouter } from './routes/auth.routes'
+import { Server as SocketIOServer } from 'socket.io'
 import authRouter from './routes/authRoutes';
 import tenderRouter from './routes/tenderRoutes'
+import bidRouter from './routes/bid.routes'
 import { logger } from './middleware/logger.middleware'
 import { delay } from './middleware/delay.middleware';
 import { auth } from './middleware/auth.middleware';
@@ -409,6 +410,29 @@ app.get('/getOpenTenderNoticesFromDB', async (req, res) => {
 
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/tenders', tenderRouter)
+app.use('/api/v1/bids', bidRouter)
+
+
+
+// Create an HTTP server, attach Socket.IO
+const httpServer = createServer(app)
+const io = new SocketIOServer(httpServer, {
+  cors: { origin: '*' },
+})
+
+io.on('connection', (socket) => {
+  console.log('A client connected:', socket.id)
+  // You can do rooms, broadcast, etc. here
+})
+
+/** 
+ * Now, we want to broadcast when a bid status changes.
+ * In updateBidStatusHandler, you can do:
+ *   req.app.get('io').emit('bidStatusUpdated', updatedBid)
+ * or import { io } from somewhere. 
+ * For that, let's store `io` in app locals:
+ */
+app.set('io', io)
 // Serve static files from the 'assets' folder
 app.use('/assets', express.static(path.join(__dirname, 'assets')))
 

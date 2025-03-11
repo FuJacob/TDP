@@ -1,10 +1,13 @@
+// apps/frontend/src/features/tdp-lg/lg-main.tsx
 import { useState } from 'react'
 import { filterOpenTenderNotices, getOpenTenderNoticesToDB } from '../../api/api'
 import { FilteredTenderData } from './components/FilteredTenderData'
+import { useNavigate } from 'react-router-dom'
 
 const LgMain = () => {
   const [formData, setFormData] = useState({ prompt: '' })
   const [showData, setShowData] = useState(false)
+  const navigate = useNavigate()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -31,7 +34,7 @@ const LgMain = () => {
 
   return (
     <>
-    <h1>Lead Generation Module</h1>
+      <h1>Lead Generation Module</h1>
       <button
         onClick={refreshTenders}
         className="text-white bg-black h-12 text-2xl font-bold mb-4"
@@ -55,6 +58,15 @@ const LgMain = () => {
         </button>
       </form>
       {showData && <FilteredTenderData />}
+      {/* New button to navigate to Bid Status Updates page */}
+      <div className="mt-8">
+        <button
+          onClick={() => navigate('/bidupdates')}
+          className="px-6 py-3 bg-blue-600 text-white text-xl font-bold rounded"
+        >
+          View Bid Status Updates
+        </button>
+      </div>
     </>
   )
 }

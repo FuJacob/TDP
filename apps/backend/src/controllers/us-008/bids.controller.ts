@@ -1,6 +1,49 @@
 // apps/backend/src/controllers/us-008/bids.controller.ts
 import express, { Request, Response } from 'express';
 import * as bidService from '../../../services/bid.service';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
+import { createClient } from '@supabase/supabase-js';
+
+
+dotenv.config();
+
+const app = express();
+app.use(bodyParser.json());
+const PORT = 3000;
+
+// Configure Supabase client
+const supabase = createClient(process.env.SUPABASE_URL || '', process.env.SUPABASE_KEY || '');
+
+// Configure email transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+
+// Function to send email notifications
+const sendEmail = async (recipient: string, subject: string, message: string, retries = 3): Promise<void> => {
+  try {
+      await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: recipient,
+          subject,
+          text: message
+      });
+      console.log(`Email sent to ${recipient}: ${subject}`);
+  } catch (error) {
+      console.error(`Email sending failed: ${error}`);
+      if (retries > 0) {
+          console.log(`Retrying... (${retries} attempts left)`);
+          await sendEmail(recipient, subject, message, retries - 1);
+      }
+  }
+};
 
 
 export async function getBidsHandler(req: Request, res: Response) {
@@ -89,3 +132,49 @@ export async function updateBidStatusHandler(req: Request, res: Response) {
   }
 }
 
+
+
+// API route to fetch bid status from Supabase and send email notifications
+app.get('/send-bid-notifications', async (req: Request, res: Response) => {
+    try {
+        // Fetch bid statuses from Supabase
+        const { data, error } = await supabase.from('bids').select('*');
+        if (error) throw error;
+
+        for (const bid of data) {
+            const { email, tender_name, status, rejection_reason } = bid;
+            let subject = '';
+            let message = '';
+
+            switch (status) {
+                case 'accepted':
+                    subject = 'Bid Accepted';
+                    message = `Congratulations! Your bid for ${tender_name} has been accepted.\nView details: http://example.com/bid/${tender_name}`;
+                    break;
+                case 'rejected':
+                    subject = 'Bid Rejected';
+                    message = `Your bid for ${tender_name} was not selected.\nReason: ${rejection_reason}\nView details: http://example.com/bid/${tender_name}`;
+                    break;
+                case 'awarded':
+                    subject = 'Bid Awarded';
+                    message = `You have won the bid for ${tender_name}!\nView details: http://example.com/bid/${tender_name}`;
+                    break;
+                default:
+                    console.warn(`Invalid status for bid ID ${bid.id}`);
+                    continue;
+            }
+
+            await sendEmail(email, subject, message);
+        }
+
+        res.json({ message: 'Notifications sent successfully' });
+    } catch (error) {
+        console.error('Error fetching bid data:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// // Start server
+// app.listen(PORT, () => {
+//     console.log(`Server running on http://localhost:${PORT}`);
+// });

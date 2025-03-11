@@ -1,41 +1,25 @@
-import * as path from 'path';
-import express from 'express';
-import OpenAI from 'openai';
-import cors from 'cors';
-import axios from 'axios';
-import Papa from 'papaparse';
-import { supabase } from './utils/supabaseClient';
-// import { createClient } from '@supabase/supabase-js'
-import tenderRoutes from './routes/tenderRoutes'
+import * as path from 'path'
+import express from 'express'
+import OpenAI from 'openai'
+import cors from 'cors'
+import axios from 'axios'
+import Papa from 'papaparse'
+import { createClient } from '@supabase/supabase-js'
+//import { authRouter } from './routes/auth.routes'
+import authRouter from './routes/authRoutes';
+import tenderRouter from './routes/tenderRoutes'
+import { logger } from './middleware/logger.middleware'
+import { delay } from './middleware/delay.middleware';
+import { auth } from './middleware/auth.middleware';
+
+//console.log('Logger:', logger);
+//console.log('Auth Router:', authRouter);
 
 // Initialize Supabase client
-// export const supabase = createClient(
-//   process.env.SUPABASE_URL || '',
-//   process.env.SUPABASE_SERVICE_KEY || ''
-// );
-
-// console.log(supabase);
-
-
-// const listTables = async () => {
-//   try {
-//     const { data, error } = await supabase.rpc('sql', {
-//       query: `SELECT * FROM public WHERE schemaname = '*';`
-//     });
-
-//     if (error) {
-//       console.error('Error fetching table names:', error);
-//       return;
-//     }
-
-//     console.log('Tables in public schema:', data);
-//   } catch (err) {
-//     console.error('Error:', err);
-//   }
-// };
-
-// listTables();
-
+const supabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_KEY || ''
+)
 
 
 // Define the target columns to filter the tender notices
@@ -89,7 +73,9 @@ const targetColumns = [
 const app = express()
 app.use(cors({ origin: '*' })) // Allow all origins
 app.use(express.json({ limit: '10mb' })) // Limit is 1mb so can parse more tenders
-
+app.use(logger);
+app.use(delay);
+app.use(auth);
 // Initialize OpenAI client
 const openai = new OpenAI({
   baseURL: process.env.GEMINI_BASE_URL,
@@ -114,7 +100,7 @@ app.get('/', (req, res) => {
 app.post('/generateLeads', async (req, res) => {
   try {
     const completion = await openai.chat.completions.create({
-      model: process.env.AI_MODEL_ID || '',
+      model: process.env.GEMINI_AI_MODEL_ID || '',
       messages: [
         { role: 'developer', content: 'You are a helpful assistant.' },
         { role: 'user', content: req.body.prompt },
@@ -259,6 +245,8 @@ app.post('/filterOpenTenderNotices', async (req, res) => {
       .select(
         'referenceNumber-numeroReference, tenderDescription-descriptionAppelOffres-eng'
       )
+      .limit(200);
+  
 
     if (error) {
       throw new Error(`Failed to fetch tender notices: ${error.message}`)
@@ -273,13 +261,15 @@ app.post('/filterOpenTenderNotices', async (req, res) => {
       }
     )
 
-    const filteredIDs = response.data.matches
+    const filteredIDs = JSON.parse(response.data).matches
+
 
     // Get full data for matched tenders
     const { data: matchedData, error: matchError } = await supabase
       .from('open_tender_notices')
       .select('*')
       .in('referenceNumber-numeroReference', filteredIDs)
+    
 
     if (matchError) {
       throw new Error(`Failed to fetch matched data: ${matchError.message}`)
@@ -421,6 +411,8 @@ app.get('/getOpenTenderNoticesFromDB', async (req, res) => {
   }
 })
 
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/tenders', tenderRouter)
 // Serve static files from the 'assets' folder
 app.use('/assets', express.static(path.join(__dirname, 'assets')))
 

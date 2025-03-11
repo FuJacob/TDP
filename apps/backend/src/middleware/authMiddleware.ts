@@ -13,7 +13,7 @@ declare global {
 
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
     if (process.env.NODE_ENV === "development") {
-      req.user = { id: "1" }; // Hardcoded user for development
+      req.user = { id: "5218b6ac-80a8-4ca0-af06-3b0293b500e7" }; // Hardcoded user for development
       return next();
     }
   

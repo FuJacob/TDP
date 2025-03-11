@@ -1,45 +1,6 @@
 // apps/backend/src/controllers/us-008/bids.controller.ts
 import express, { Request, Response } from 'express';
 import * as bidService from '../../../services/bid.service';
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-import bodyParser from 'body-parser';
-
-dotenv.config();
-
-const app = express();
-app.use(bodyParser.json());
-const PORT = 3000;
-
-// Configure email transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
-  auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-  }
-});
-
-// Function to send email notifications
-const sendEmail = async (recipient: string, subject: string, message: string, retries = 3): Promise<void> => {
-  try {
-      await transporter.sendMail({
-          from: process.env.SMTP_USER,
-          to: recipient,
-          subject,
-          text: message
-      });
-      console.log(`Email sent to ${recipient}: ${subject}`);
-  } catch (error) {
-      console.error(`Email sending failed: ${error}`);
-      if (retries > 0) {
-          console.log(`Retrying... (${retries} attempts left)`);
-          await sendEmail(recipient, subject, message, retries - 1);
-      }
-  }
-};
 
 
 export async function getBidsHandler(req: Request, res: Response) {
@@ -128,39 +89,3 @@ export async function updateBidStatusHandler(req: Request, res: Response) {
   }
 }
 
-
-// API route to update bid status
-app.post('/update-bid-status', async (req: Request, res: Response) => {
-    const { email, tenderName, status, rejectionReason } = req.body;
-    if (!email || !tenderName || !status) {
-        return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    let subject = '';
-    let message = '';
-
-    switch (status) {
-        case 'accepted':
-            subject = 'Bid Accepted';
-            message = `Congratulations! Your bid for ${tenderName} has been accepted.\nView details: http://example.com/bid/${tenderName}`;
-            break;
-        case 'rejected':
-            subject = 'Bid Rejected';
-            message = `Your bid for ${tenderName} was not selected.\nReason: ${rejectionReason}\nView details: http://example.com/bid/${tenderName}`;
-            break;
-        case 'awarded':
-            subject = 'Bid Awarded';
-            message = `You have won the bid for ${tenderName}!\nView details: http://example.com/bid/${tenderName}`;
-            break;
-        default:
-            return res.status(400).json({ error: 'Invalid bid status' });
-    }
-
-    await sendEmail(email, subject, message);
-    res.json({ message: 'Notification sent successfully' });
-});
-
-// // Start server
-// app.listen(PORT, () => {
-//     console.log(`Server running on http://localhost:${PORT}`);
-// });

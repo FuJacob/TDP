@@ -7,6 +7,7 @@ const white_list = [
   '/api/v1/auth/login',
   '/api/v1/auth/forgotpassword',
   '/api/v1/auth/resetpassword',
+  '/filterTendersWithAI',
   '/' 
 ];
 declare module "express" {

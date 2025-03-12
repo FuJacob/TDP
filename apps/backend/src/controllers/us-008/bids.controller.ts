@@ -3,12 +3,9 @@ import { Request, Response } from 'express';
 import * as bidService from '../../services/bid.service';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
+
 
 dotenv.config();
-
-// Initialize Supabase client for notifications endpoint
-const supabase = createClient(process.env.SUPABASE_URL || '', process.env.SUPABASE_KEY || '');
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -43,10 +40,7 @@ const sendEmail = async (
   }
 };
 
-/**
- * GET /api/v1/bids
- * Fetch all bids for the logged-in user, with pagination and optional filters.
- */
+//Fetch bids for user with pagination, should be tested using the frontend
 export async function getBidsHandler(req: Request, res: Response) {
   try {
     if (!req.user) {
@@ -75,10 +69,7 @@ export async function getBidsHandler(req: Request, res: Response) {
   }
 }
 
-/**
- * GET /api/v1/bids/:id
- * Fetch a single bid by its ID (only if it belongs to the logged-in user).
- */
+//Fetch a single bid by its id
 export async function getSingleBidHandler(req: Request, res: Response) {
   try {
     if (!req.user) {

@@ -1,6 +1,5 @@
 // apps/backend/src/services/bid.service.ts
-import { supabase } from '../utils/supabaseClient';
-
+import { createSupabaseClient } from '../utils/createSupabaseClient';
 interface BidQueryParams {
   page?: number;
   limit?: number;
@@ -32,9 +31,7 @@ export interface BidSearchResult {
   };
 }
 
-/**
- * Fetch multiple bids for a user, with pagination and optional filters
- */
+//Fetching bids for a user
 export async function getBidsForUser(
   userId: string,
   queryParams: BidQueryParams
@@ -48,7 +45,7 @@ export async function getBidsForUser(
     .eq('user_id', userId) // only fetch bids for this user
     .range(offset, offset + limit - 1);
 
-  // Optional filters: e.g. filters.bid_status = 'Submitted'
+  // Optional filters
   for (const key in filters) {
     if (filters[key]) {
       // Simple eq filter. Extend if you want ilike or more advanced filtering
@@ -57,8 +54,7 @@ export async function getBidsForUser(
   }
 
   // Sort by column, default last_updated descending
-  // You can adapt logic if you want ascending or multiple sorts
-  const ascending = false; // example: newest first
+  const ascending = false; 
   dbQuery = dbQuery.order(sort_by, { ascending });
 
   const { data, error, count } = await dbQuery;
@@ -81,9 +77,7 @@ export async function getBidsForUser(
   };
 }
 
-/**
- * Fetch a single bid by ID, ensuring it belongs to the user
- */
+//Fetching a singular bid through its bid ID
 export async function getBidById(userId: string, bidId: string): Promise<SubmittedBid | null> {
   const { data, error } = await supabase
     .from('submitted_bids')
@@ -103,9 +97,7 @@ export async function getBidById(userId: string, bidId: string): Promise<Submitt
   return data as SubmittedBid;
 }
 
-/**
- * Update bid status (or other fields) for a given bid ID + user
- */
+//Fetching bid status for new bids
 export async function updateBidStatus(
   userId: string,
   bidId: string,

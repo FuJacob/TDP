@@ -8,13 +8,13 @@ import {
 
 const bidRouter = Router();
 
-// GET /api/v1/bids? page, limit, sort_by, bid_status, etc.
+// GET /api/v1/bids? 
 bidRouter.get('/', getBidsHandler);
 
 // GET /api/v1/bids/:id
 bidRouter.get('/:id', getSingleBidHandler);
 
-// PATCH /api/v1/bids/:id -> update bid status or other fields
+// PATCH /api/v1/bids/:id 
 bidRouter.patch('/:id', updateBidStatusHandler);
 
 export default bidRouter;

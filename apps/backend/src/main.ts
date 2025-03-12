@@ -1,20 +1,24 @@
-import * as path from 'path'
-import express from 'express'
-import OpenAI from 'openai'
-import cors from 'cors'
-import axios from 'axios'
-import Papa from 'papaparse'
-import { createClient } from '@supabase/supabase-js'
-import { Server as SocketIOServer } from 'socket.io'
+// apps/backend/src/main.ts
+import * as path from 'path';
+import express from 'express';
+import OpenAI from 'openai';
+import cors from 'cors';
+import axios from 'axios';
+import Papa from 'papaparse';
+import { createClient } from '@supabase/supabase-js';
+import { createServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 import authRouter from './routes/authRoutes';
-import tenderRouter from './routes/tenderRoutes'
-import bidRouter from './routes/bid.routes'
-import { logger } from './middleware/logger.middleware'
+import tenderRouter from './routes/tenderRoutes';
+import bidRouter from './routes/bid.routes';
+import { logger } from './middleware/logger.middleware';
 import { delay } from './middleware/delay.middleware';
 import { auth } from './middleware/auth.middleware';
-
+import dotenv from 'dotenv';
 //console.log('Logger:', logger);
 //console.log('Auth Router:', authRouter);
+
+dotenv.config();
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -414,29 +418,43 @@ app.use('/api/v1/bids', bidRouter)
 
 
 
-// Create an HTTP server, attach Socket.IO
-const httpServer = createServer(app)
+// Serve static files from the 'assets' folder
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+// Create an HTTP server and attach Socket.IO to it
+const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: { origin: '*' },
-})
+});
 
 io.on('connection', (socket) => {
-  console.log('A client connected:', socket.id)
-  // You can do rooms, broadcast, etc. here
-})
+  console.log('A client connected:', socket.id);
+});
 
-/** 
- * Now, we want to broadcast when a bid status changes.
- * In updateBidStatusHandler, you can do:
- *   req.app.get('io').emit('bidStatusUpdated', updatedBid)
- * or import { io } from somewhere. 
- * For that, let's store `io` in app locals:
- */
-app.set('io', io)
-// Serve static files from the 'assets' folder
-app.use('/assets', express.static(path.join(__dirname, 'assets')))
+app.set('io', io); // Make io accessible in your controllers
+// SUPABASE REAL-TIME SUBSCRIPTION
 
-const server = app.listen(process.env.PORT, () => {
-  console.log(`Listening at http://localhost:${process.env.PORT}`)
-})
-server.on('error', console.error)
+// Subscribe to the insert events section of the DB so that users know when new bids are updated
+const bidChannel = supabase
+  .channel('submitted_bids_changes')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'submitted_bids',
+    },
+    (payload) => {
+      const newBid = payload.new;
+      console.log('New row inserted into submitted_bids:', newBid);
+      // Display data to connected clients
+      io.emit('bidStatusUpdated', { bid: newBid });
+    }
+  )
+  .subscribe();
+
+// Start the HTTP server (instead of app.listen)
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, () => {
+  console.log(`Listening at http://localhost:${PORT}`);
+});

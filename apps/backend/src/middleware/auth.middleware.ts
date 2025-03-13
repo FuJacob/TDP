@@ -1,42 +1,30 @@
+// apps/backend/src/middleware/auth.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../utils/supabaseClient';
 
-// Define a whitelist of endpoints that do not require authentication.
 const white_list = [
   '/api/v1/auth/signup',
   '/api/v1/auth/login',
   '/api/v1/auth/forgotpassword',
   '/api/v1/auth/resetpassword',
-  '/' 
+  '/'
 ];
+
 declare module "express" {
   export interface Request {
     user?: {
+      userId: string;
       email: string;
       name: string;
     };
   }
 }
-// Extend Request type to include user property
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        name: string;
-        email: string;
-        // Add other user properties you need
-      };
-    }
-  }
-}
 
 export const auth = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-  // Check if the request URL is in the whitelist
   if (white_list.some(item => req.originalUrl === item)) {
     return next();
   }
 
-  // Check if authorization header exists and extract the token
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')?.[1];
 
@@ -47,18 +35,16 @@ export const auth = async (req: Request, res: Response, next: NextFunction): Pro
   }
 
   try {
-    // Verify token using Supabase
+    // Use Supabase to get the user information from the token
     const { data: { user }, error } = await supabase.auth.getUser(token);
-
     if (error || !user) {
       throw new Error(error?.message || 'Invalid user');
     }
 
-    // Attach user info to the request object
     req.user = {
+      userId: user.id, // Set the actual Supabase UUID
+      email: user.email || '',
       name: user.user_metadata?.first_name || '',
-      email: user.email ?? '',
-      // Add other user properties from Supabase response
     };
 
     return next();
@@ -70,3 +56,4 @@ export const auth = async (req: Request, res: Response, next: NextFunction): Pro
     });
   }
 };
+

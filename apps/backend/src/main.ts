@@ -417,7 +417,7 @@ app.use('/api/v1/tenders', tenderRouter)
 app.use('/assets', express.static(path.join(__dirname, 'assets')))
 
 //routes middleware
-app.use('/api', tenderRoutes);
+// app.use('/api', tenderRoutes);
 
 const server = app.listen(process.env.PORT, () => {
   console.log(`Listening at http://localhost:${process.env.PORT}`)

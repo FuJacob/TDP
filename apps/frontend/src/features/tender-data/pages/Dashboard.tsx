@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import TenderList from './TenderList'
-import { Pagination, Select, MenuItem, SelectChangeEvent } from '@mui/material'
+import { Pagination, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import axios from "../../../utils/axios.customize";
+
+interface SubTender {
+  subId: string;
+  title: string;
+  status: string;
+  submittedAt: string;
+  updatedAt: string;
+}
 
 const Dashboard: React.FC = () => {
   const [tenders, setTenders] = useState<any[]>([])
@@ -19,13 +28,25 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchTenders = async () => {
       try {
-        const response = await fetch(
-          'http://localhost:3000/v1/user/submittedtenders'
+        const response = await axios.get(
+          'http://localhost:3000/api/v1/tenders/submittedtenders'
         )
-        const result = await response.json()
-        if (result.success) {
-          setTenders(result.data)
-          setFilteredTenders(result.data)
+        const data = response.data;
+
+        if (data.subtenders) {
+          // Trim any trailing spaces from status values
+          const cleanedsubTenders = data.subtenders.map((subtender: SubTender) => ({
+            ...subtender,
+            status: subtender.status.trim(), // Trim leading/trailing spaces
+          }));
+
+          setTenders(cleanedsubTenders);
+          setFilteredTenders(cleanedsubTenders);
+
+
+        // if (result.success) {
+        //   setTenders(result.data)
+        //   setFilteredTenders(result.data)
         } else {
           setError('Error fetching tenders')
         }
@@ -51,8 +72,8 @@ const Dashboard: React.FC = () => {
     if (startDate && endDate) {
       filtered = filtered.filter(
         (tender) =>
-          new Date(tender.submitted_at) >= new Date(startDate) &&
-          new Date(tender.submitted_at) <= new Date(endDate)
+          new Date(tender.submittedAt) >= new Date(startDate) &&
+          new Date(tender.submittedAt) <= new Date(endDate)
       )
     }
 

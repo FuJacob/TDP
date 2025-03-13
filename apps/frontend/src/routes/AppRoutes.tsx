@@ -17,13 +17,13 @@ const AppRoutes = () => {
       
       {/* Apply Layout to all pages */}
       <Route path="/" element={<Layout />}>
-        <Route path="tenderdata" element={<TenderData />} />
+        <Route path="/tenderdata" element={<TenderData />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-reset-password" element={<ForgotResetPassword />} />
         <Route path="/forgot-reset-password/:token" element={<ForgotResetPassword />} />
         <Route path="/signUp" element={<SignUp />} />
         <Route path="/tendersearch" element={<TenderSearch />} />
-        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="lg" element={<LgMain />} />
         <Route path="ca" element={<CaMain />} />
         <Route path="bm" element={<BmMain />} />

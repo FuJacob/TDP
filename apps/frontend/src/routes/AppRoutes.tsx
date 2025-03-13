@@ -9,6 +9,7 @@ import Login from "../features/tdp-lg/pages/login";
 import SignUp from "../features/tdp-lg/pages/SignUp";
 import TenderSearch from "../features/tdp-lg/pages/TenderSearch";
 import BidStatusUpdates from '../features/tdp-lg/pages/BidStatusUpdates';
+import MyBids from "../features/tdp-lg/pages/MyBids";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -24,6 +25,7 @@ const AppRoutes = () => {
         <Route path="/signUp" element={<SignUp />} />
         <Route path="/tendersearch" element={<TenderSearch />} />
         <Route path="/bidupdates" element={<BidStatusUpdates />} />
+        <Route path="/my-bids" element={<MyBids />} />
         <Route path="lg" element={<LgMain />} />
         <Route path="ca" element={<CaMain />} />
         <Route path="bm" element={<BmMain />} />

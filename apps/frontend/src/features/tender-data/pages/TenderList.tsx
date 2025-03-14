@@ -2,9 +2,9 @@ import React from "react";
 
 interface Tender {
   title: string;
-  submitted_at: string;
+  submittedAt: string;
   status: string;
-  updated_at: string;
+  updatedAt: string;
 }
 
 interface TenderListProps {
@@ -35,13 +35,13 @@ const TenderList: React.FC<TenderListProps> = ({
           <th className="p-2 cursor-pointer" onClick={() => onSort("title")}>
             Tender Title {sortField === "title" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
           </th>
-          <th className="p-2 cursor-pointer" onClick={() => onSort("submitted_at")}>
+          <th className="p-2 cursor-pointer" onClick={() => onSort("submittedAt")}>
             Submission Date {sortField === "submitted_at" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
           </th>
           <th className="p-2 cursor-pointer" onClick={() => onSort("status")}>
             Status {sortField === "status" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
           </th>
-          <th className="p-2 cursor-pointer" onClick={() => onSort("updated_at")}>
+          <th className="p-2 cursor-pointer" onClick={() => onSort("submittedAt")}>
             Last Updated {sortField === "updated_at" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
           </th>
         </tr>
@@ -57,9 +57,9 @@ const TenderList: React.FC<TenderListProps> = ({
           visibleTenders.map((tender, index) => (
             <tr key={index} className="border-t border-gray-300 text-center">
               <td className="p-2">{tender.title}</td>
-              <td className="p-2">{tender.submitted_at || "N/A"}</td>
+              <td className="p-2">{tender.submittedAt || "N/A"}</td>
               <td className="p-2">{tender.status}</td>
-              <td className="p-2">{tender.updated_at || "N/A"}</td>
+              <td className="p-2">{tender.submittedAt || "N/A"}</td>
             </tr>
           ))
         )}

@@ -13,6 +13,7 @@ const white_list = [
 declare module "express" {
   export interface Request {
     user?: {
+      userId: string;
       email: string;
       name: string;
     };
@@ -23,6 +24,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
+        userId: string;
         name: string;
         email: string;
         // Add other user properties you need
@@ -49,16 +51,17 @@ export const auth = async (req: Request, res: Response, next: NextFunction): Pro
 
   try {
     // Verify token using Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const { data, error } = await supabase.auth.getUser(token);
 
-    if (error || !user) {
+    if (error || !data.user) {
       throw new Error(error?.message || 'Invalid user');
     }
 
     // Attach user info to the request object
     req.user = {
-      name: user.user_metadata?.first_name || '',
-      email: user.email ?? '',
+      userId: data.user.id,
+      name: data.user.user_metadata?.first_name || '',
+      email: data.user.email ?? '',
       // Add other user properties from Supabase response
     };
 

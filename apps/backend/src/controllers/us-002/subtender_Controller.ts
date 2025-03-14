@@ -2,13 +2,15 @@ import {Request, Response }  from 'express';
 const submittenderServices = require('../../services/submittenderServices');
 
 
+
 // Fetch list of tenders for authenticated users
 export const subUserTenderHandler = async (req: Request, res: Response): Promise<Response> => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(' ')?.[1];
-    console.log('Token:', token);
-
     try {
+
+        if (!req.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const userId = req.user.userId;
 
         // Extract and validate query parameters
         const queryParams = {
@@ -20,7 +22,7 @@ export const subUserTenderHandler = async (req: Request, res: Response): Promise
         };
 
         // Pass processed parameters to service
-        const result = await submittenderServices.searchSubTendersService(token,queryParams);
+        const result = await submittenderServices.searchSubTendersService(userId,queryParams);
        
         return res.status(200).json(result);
     } catch (error: unknown) {
@@ -31,3 +33,32 @@ export const subUserTenderHandler = async (req: Request, res: Response): Promise
         return res.status(500).json({ error: 'An unknown error occurred' });
     }      
 };
+
+// Update tender info
+export async function updateSubTenderHandler(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const userId = req.user.userId;
+      const { id } = req.params;
+      const { newStatus } = req.body;
+      if (!newStatus) {
+        return res.status(400).json({ error: 'newStatus is required' });
+      }
+      const updatedSubTender = await submittenderServices.updateSubTender(userId, id, newStatus);
+      if (!updatedSubTender) {
+        return res.status(404).json({ error: 'Tender not found or not updated' });
+      }
+  
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('bidStatusUpdated', { subtender: updatedSubTender });
+      }
+  
+      return res.json({ subtender: updatedSubTender });
+    } catch (err: any) {
+      console.error('Error updating bid status:', err);
+      return res.status(500).json({ error: err.message });
+    }
+}

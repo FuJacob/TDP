@@ -32,6 +32,7 @@ const Dashboard: React.FC = () => {
           'http://localhost:3000/api/v1/tenders/submittedtenders'
         )
         const data = response.data;
+    
 
         if (data.subtenders) {
           // Trim any trailing spaces from status values
@@ -131,7 +132,7 @@ const Dashboard: React.FC = () => {
   // **Compute Summary Stats**
   const totalTenders = tenders.length
   const openTenders = tenders.filter((t) => t.status === 'Open').length
-  const pendingTenders = tenders.filter((t) => t.status === 'Pending').length
+  const pendingTenders = tenders.filter((t) => t.status === 'Submitted').length
   const acceptedTenders = tenders.filter((t) => t.status === 'Approved').length
   const rejectedTenders = tenders.filter((t) => t.status === 'Rejected').length
 
@@ -143,7 +144,7 @@ const Dashboard: React.FC = () => {
   const filterByStatus = (status: string | null) => {
     if (status === statusFilter) {
       setStatusFilter(null)
-      setFilteredTenders(tenders)
+      setFilteredTenders([...tenders])
     } else {
       setStatusFilter(status)
       setFilteredTenders(tenders.filter((t) => t.status === status))
@@ -178,9 +179,9 @@ const Dashboard: React.FC = () => {
           className={`p-4 rounded-lg text-center shadow cursor-pointer ${
             statusFilter === 'Pending' ? 'bg-yellow-200' : 'bg-yellow-100'
           }`}
-          onClick={() => filterByStatus('Pending')}
+          onClick={() => filterByStatus('Submitted')}
         >
-          <p className="text-lg font-semibold">Pending</p>
+          <p className="text-lg font-semibold">Submitted</p>
           <p className="text-3xl font-bold text-yellow-600">{pendingTenders}</p>
           <p className="text-sm text-gray-600">
             {getPercentage(pendingTenders)}%

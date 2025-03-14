@@ -1,6 +1,5 @@
-import { UUID } from 'crypto';
-import { createSupabaseClient } from '../utils/createSupabaseClient';
 import getStringParam from '../utils/getStringParam';
+import { supabase } from '../utils/supabaseClient';
 
 // Type definitions
 interface SearchQueryParams {
@@ -10,9 +9,6 @@ interface SearchQueryParams {
   page?: string | string[];
   limit?: string | string[];
   sort_by?: string | string[];
-}
-interface token{
-  token:string
 }
 
 interface RawSubTenderData {
@@ -37,9 +33,6 @@ export interface TransformedSubTender {
   updatedAt: string;
 }
 
-
-
-
 interface SubTenderResult{
     subtenders: TransformedSubTender[];
     pagination: {
@@ -51,8 +44,8 @@ interface SubTenderResult{
 }
 
 // Submitted tender service
-export async function searchSubTendersService(access_token:token,queryParams: SearchQueryParams): Promise<SubTenderResult> { 
-
+export async function searchSubTendersService(userId: string, queryParams: SearchQueryParams): Promise<SubTenderResult> { 
+  
     const status = getStringParam(queryParams.status);
     const startDate = getStringParam(queryParams.startDate);
     const endDate = getStringParam(queryParams.endDate);
@@ -62,19 +55,13 @@ export async function searchSubTendersService(access_token:token,queryParams: Se
     const page = Math.max(1, Number(getStringParam(queryParams.page)) || 1);
     const limit = Math.max(1, Number(getStringParam(queryParams.limit))) || 10;
     const offset = (page - 1) * limit;
-    
 
-   
   
-    const supabase = createSupabaseClient(access_token.token);
 
-
-    const user = supabase.auth.getUser();
-    console.log('user logged in', user)    
-     
     let dbQuery = supabase
         .from('submitted_tenders')
-        .select("submission_id, title, submitted_at, status, updated_at")
+        .select("submission_id, title, submitted_at::date, status, updated_at::date")
+        .eq('user_id', userId)
         .range(offset, offset + limit - 1);
  
 
@@ -131,4 +118,46 @@ export async function searchSubTendersService(access_token:token,queryParams: Se
         }
       };
   
- }
+}
+
+// Get Submitted Tender by ID
+export async function getBidById(userId: string, subId: string): Promise<TransformedSubTender | null> {
+  const { data, error } = await supabase
+    .from('submitted_bids')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('submission_id', subId)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return null;
+    }
+    throw new Error(`Failed to fetch bid: ${error.message}`);
+  }
+
+  return data as TransformedSubTender;
+}
+
+// Update Tender data
+export async function updateBidStatus(
+  userId: string,
+  subId: string,
+  newStatus: string
+): Promise<TransformedSubTender | null> {
+  const { data, error } = await supabase
+    .from('submitted_bids')
+    .update({
+      bid_status: newStatus,
+      last_updated_date: new Date().toISOString(),
+    })
+    .eq('user_id', userId)
+    .eq('submission_id', subId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update bid status: ${error.message}`);
+  }
+
+  return data as TransformedSubTender;
+}

@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import * as bidService from '../../services/bid.service';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import { io } from "../../main"; // Import Socket.IO instance from main.ts TRIAL
 import { supabase } from '../utils/supabaseClient';
 
 dotenv.config();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 interface Bid {
-  id: number;
+  id: string | number;
   title: string;
   tenderName: string;
   submissionDate: string;
@@ -38,17 +38,25 @@ const MyBids: React.FC = () => {
           throw new Error(`Error ${response.status}: Failed to fetch bids`);
         }
 
-        /**
-         * The backend returns an object like:
-         *   {
-         *     "bids": [...array of bids...],
-         *     "pagination": {...}
-         *   }
-         */
+        // The backend returns: { bids: [...], pagination: {...} }
         const data = await response.json();
+        console.log("Raw response data:", data); // <--- Log #1
 
-        // data.bids is the array of bids we actually need:
-        setBids(data.bids);
+        // If data.bids is empty, you'll see an empty array in the console
+        const rawBids = data.bids || [];
+
+        // Convert raw DB columns to your front-end fields
+        const mappedBids = rawBids.map((row: any) => ({
+          id: row.bid_id,
+          title: row.bid_title,
+          tenderName: row.tender_ref,
+          submissionDate: row.submission_date,
+          status: row.bid_status,
+          lastUpdated: row.last_updated_date,
+        }));
+
+        console.log("Mapped bids:", mappedBids); // <--- Log #2
+        setBids(mappedBids);
       } catch (err) {
         setError("Error fetching bids. Please try again.");
       } finally {
@@ -65,7 +73,7 @@ const MyBids: React.FC = () => {
   const [endDate, setEndDate] = useState<string>("");
 
   // Sorting State
-  const [sortKey, setSortKey] = useState<string>("submissionDate"); // Default sorting by Submission Date
+  const [sortKey, setSortKey] = useState<string>("submissionDate"); // Default sorting
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // Filtered Data

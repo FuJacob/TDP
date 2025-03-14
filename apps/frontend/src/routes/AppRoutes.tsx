@@ -4,9 +4,9 @@ import TenderData from "../features/tender-data/TenderData";
 import LgMain from "../features/tdp-lg/lg-main";
 import CaMain from "../features/tdp-ca/ca-main";
 import BmMain from "../features/tdp-bm/bm-main";
-import ForgotResetPassword from "../features/tdp-lg/pages/ForgotResetPassword";
-import Login from "../features/tdp-lg/pages/login";
-import SignUp from "../features/tdp-lg/pages/SignUp";
+import ForgotResetPassword from "../auth/pages/ForgotResetPassword";
+import Login from "../auth/pages/login";
+import SignUp from "../auth/pages/SignUp";
 import TenderSearch from "../features/tdp-lg/pages/TenderSearch";
 const AppRoutes = () => {
   return (

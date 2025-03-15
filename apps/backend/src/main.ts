@@ -5,7 +5,8 @@ import cors from 'cors'
 import axios from 'axios'
 import Papa from 'papaparse'
 import { createClient } from '@supabase/supabase-js'
-//import { authRouter } from './routes/auth.routes'
+import { createServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 import authRouter from './routes/authRoutes';
 import tenderRouter from './routes/tenderRoutes'
 import { logger } from './middleware/logger.middleware'
@@ -411,10 +412,47 @@ app.get('/getOpenTenderNoticesFromDB', async (req, res) => {
   }
 })
 
+
+
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/tenders', tenderRouter)
 // Serve static files from the 'assets' folder
 app.use('/assets', express.static(path.join(__dirname, 'assets')))
+
+// Create an HTTP server and attach Socket.IO to it
+const httpServer = createServer(app);
+const io = new SocketIOServer(httpServer, {
+  cors: { origin: "*",
+    methods: ["GET", "POST", "PATCH", "PUT"],
+    allowedHeaders: ["Content-Type"],
+    credentials: true, 
+  },
+});
+
+io.on('connection', (socket) => {
+  console.log('A client connected:', socket.id);
+});
+
+app.set('io', io); // Make io accessible in your controllers
+
+// Subscribe to the insert events section of the DB so that users know when new bids are updated
+const tenderChannel = supabase
+  .channel('submitted_tenders_changes')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'submitted_tenders',
+    },
+    (payload) => {
+      const newTender = payload.new;
+      console.log('New row inserted into submitted_tenders:', newTender);
+      // Display data to connected clients
+      io.emit('subTenderUpdated', { subtender: newTender });
+    }
+  )
+.subscribe();
 
 //routes middleware
 // app.use('/api', tenderRoutes);
@@ -423,3 +461,6 @@ const server = app.listen(process.env.PORT, () => {
   console.log(`Listening at http://localhost:${process.env.PORT}`)
 })
 server.on('error', console.error)
+
+
+export { io, httpServer, app };

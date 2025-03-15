@@ -45,7 +45,8 @@ interface SubTenderResult{
 
 // Submitted tender service
 export async function searchSubTendersService(userId: string, queryParams: SearchQueryParams): Promise<SubTenderResult> { 
-  
+    
+  console.log('userid in service', userId);
     const status = getStringParam(queryParams.status);
     const startDate = getStringParam(queryParams.startDate);
     const endDate = getStringParam(queryParams.endDate);
@@ -121,7 +122,7 @@ export async function searchSubTendersService(userId: string, queryParams: Searc
 }
 
 // Get Submitted Tender by ID
-export async function getBidById(userId: string, subId: string): Promise<TransformedSubTender | null> {
+export async function getSubTenderById(userId: string, subId: string): Promise<TransformedSubTender | null> {
   const { data, error } = await supabase
     .from('submitted_bids')
     .select('*')
@@ -133,14 +134,14 @@ export async function getBidById(userId: string, subId: string): Promise<Transfo
     if (error.code === 'PGRST116') {
       return null;
     }
-    throw new Error(`Failed to fetch bid: ${error.message}`);
+    throw new Error(`Failed to fetch tender: ${error.message}`);
   }
 
   return data as TransformedSubTender;
 }
 
 // Update Tender data
-export async function updateBidStatus(
+export async function updateSubTender(
   userId: string,
   subId: string,
   newStatus: string

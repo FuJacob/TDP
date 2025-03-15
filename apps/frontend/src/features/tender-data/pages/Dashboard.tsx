@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import TenderList from './TenderList'
 import { Pagination, Select, MenuItem, SelectChangeEvent } from '@mui/material';
-import axios from "../../../utils/axios.customize";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3000" , { transports: ["websocket"] });
+
+socket.on("connect", () => {
+  console.log("Connected to WebSocket server");
+});
+
+socket.on("connect_error", (err) => {
+  console.error("Socket connection error:", err);
+});
 
 interface SubTender {
   subId: string;
@@ -25,46 +35,135 @@ const Dashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
 
-  useEffect(() => {
-    const fetchTenders = async () => {
-      try {
-        const response = await axios.get(
-          'http://localhost:3000/api/v1/tenders/submittedtenders'
-        )
-        const data = response.data;
-    
+  // useEffect(() => {
+  //   const fetchTenders = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const token = localStorage.getItem("access_token");
+  //       console.log(token)
 
-        if (data.subtenders) {
-          // Trim any trailing spaces from status values
-          const cleanedsubTenders = data.subtenders.map((subtender: SubTender) => ({
-            ...subtender,
-            status: subtender.status.trim(), // Trim leading/trailing spaces
-          }));
+  //       if (!token) {
+  //         setError("You must be logged in to view your bids.");
+  //         setLoading(false);
+  //         return;
+  //       }
 
-          setTenders(cleanedsubTenders);
-          setFilteredTenders(cleanedsubTenders);
+  //       const response = await fetch("http://localhost:3000/api/v1/tenders/submittedtenders", {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+
+  //       if (!response.ok) {
+  //         throw new Error(`Error ${response.status}: Failed to fetch bids`);
+  //       }
+
+  //       // The backend returns: { bids: [...], pagination: {...} }
+  //       const data = await response.json();
+  //       console.log("Raw response data:", data); 
+        
+  //       const rawTenders = data.subtenders  || [];
+
+  //       if (rawTenders) {
+  //         // Trim any trailing spaces from status values
+  //         const cleanedsubTenders = rawTenders.map((subtender: SubTender) => ({
+  //           ...subtender,
+  //           status: subtender.status.trim(), // Trim leading/trailing spaces
+  //         }));
+  //         console.log('Cleaned sub tenders', cleanedsubTenders)
+
+  //         setTenders(cleanedsubTenders);
+  //         setFilteredTenders(cleanedsubTenders);
 
 
-        // if (result.success) {
-        //   setTenders(result.data)
-        //   setFilteredTenders(result.data)
-        } else {
-          setError('Error fetching tenders')
-        }
-      } catch (error) {
-        console.error('Error fetching tenders:', error)
-        setError('Server error')
-      } finally {
-        setLoading(false)
+  //       // if (result.success) {
+  //       //   setTenders(result.data)
+  //       //   setFilteredTenders(result.data)
+  //       } else {
+  //         setError('Error fetching tenders')
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching tenders:', error)
+  //       setError('Server error')
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   }
+
+  //   fetchTenders()
+  // }, [])
+
+
+  const fetchTenders = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        setError("You must be logged in to view your bids.");
+        setLoading(false);
+        return;
       }
-    }
 
-    fetchTenders()
-  }, [])
+      const response = await fetch("http://localhost:3000/api/v1/tenders/submittedtenders", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: Failed to fetch bids`);
+      }
+
+      const data = await response.json();
+      console.log("Raw response data:", data);
+
+      const rawTenders = data.subtenders || [];
+
+      // Trim spaces from status values
+      const cleanedsubTenders = rawTenders.map((subtender: SubTender) => ({
+        ...subtender,
+        status: subtender.status.trim(),
+      }));
+
+      console.log("Cleaned sub tenders:", cleanedsubTenders);
+      setTenders(cleanedsubTenders);
+      setFilteredTenders(cleanedsubTenders);
+    } catch (error) {
+      console.error("Error fetching tenders:", error);
+      setError("Server error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchTenders();
+
+    // Listen for real-time updates
+    socket.on("subTenderUpdated", (data) => {
+      console.log("New tender update received:", data);
+
+      setTenders((prevTenders) => [...prevTenders, data]);
+    });
+
+    return () => {
+      socket.off("subTenderUpdated");
+    };
+  }, []);
+
+
+  
 
   // Apply filters
   const handleFilter = () => {
     let filtered = tenders
+    console.log("filered tenders", tenders);
 
     if (statusFilter) {
       filtered = filtered.filter((tender) => tender.status === statusFilter)

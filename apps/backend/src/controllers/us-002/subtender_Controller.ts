@@ -1,7 +1,7 @@
 import {Request, Response }  from 'express';
 const submittenderServices = require('../../services/submittenderServices');
-
-
+import { io } from "../../main";
+import { supabase } from '../../utils/supabaseClient';
 
 // Fetch list of tenders for authenticated users
 export const subUserTenderHandler = async (req: Request, res: Response): Promise<Response> => {
@@ -11,6 +11,7 @@ export const subUserTenderHandler = async (req: Request, res: Response): Promise
             return res.status(401).json({ error: 'Unauthorized' });
         }
         const userId = req.user.userId;
+        console.log("UserID is being displayed or not>>>>>>>>>",userId);
 
         // Extract and validate query parameters
         const queryParams = {
@@ -22,7 +23,7 @@ export const subUserTenderHandler = async (req: Request, res: Response): Promise
         };
 
         // Pass processed parameters to service
-        const result = await submittenderServices.searchSubTendersService(userId,queryParams);
+        const result = await submittenderServices.searchSubTendersService(userId, queryParams);
        
         return res.status(200).json(result);
     } catch (error: unknown) {
@@ -42,19 +43,19 @@ export async function updateSubTenderHandler(req: Request, res: Response) {
       }
       const userId = req.user.userId;
       const { id } = req.params;
-      const { newStatus } = req.body;
-      if (!newStatus) {
+      const { newData } = req.body;
+      console.log('updated data',newData);
+      if (!newData) {
         return res.status(400).json({ error: 'newStatus is required' });
       }
-      const updatedSubTender = await submittenderServices.updateSubTender(userId, id, newStatus);
+      const updatedSubTender = await submittenderServices.updateSubTender(userId, id, newData);
       if (!updatedSubTender) {
         return res.status(404).json({ error: 'Tender not found or not updated' });
       }
   
-      const io = req.app.get('io');
-      if (io) {
-        io.emit('bidStatusUpdated', { subtender: updatedSubTender });
-      }
+      
+    io.emit('sunTenderUpdated', { subtender: updatedSubTender });
+      
   
       return res.json({ subtender: updatedSubTender });
     } catch (err: any) {
@@ -62,3 +63,23 @@ export async function updateSubTenderHandler(req: Request, res: Response) {
       return res.status(500).json({ error: err.message });
     }
 }
+
+
+export async function getSubTenderByIDHandler(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const userId = req.user.userId;
+      const { id } = req.params;
+      const tender = await submittenderServices.getSubTenderById(userId, id);
+      if (!tender) {
+        return res.status(404).json({ error: 'Tender not found' });
+      }
+      return res.json({ tender });
+    } catch (err: any) {
+      console.error('Error fetching single tender:', err);
+      return res.status(500).json({ error: err.message });
+}
+}
+  

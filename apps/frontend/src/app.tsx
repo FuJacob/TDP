@@ -1,5 +1,5 @@
 import AppRoutes from "./routes/AppRoutes";
-import { useAuth } from "./features/tdp-lg/components/AuthContext";
+import { useAuth } from "./auth/components/AuthContext";
 import {getaccountAPI} from './api/api';
 import { useEffect, useState } from "react";
 function App() {

@@ -1,5 +1,7 @@
 // import { supabase } from '../utils/supabaseClient';
 import { createSupabaseClient } from '../utils/createSupabaseClient';
+import getStringParam from '../utils/getStringParam';
+
 // Type definitions
 interface SearchQueryParams {
   query?: string | string[];
@@ -51,12 +53,9 @@ interface TenderSearchResult {
   };
 }
 
+
+// Search tender service
 export async function searchTendersService(access_token:token,queryParams: SearchQueryParams): Promise<TenderSearchResult> {
-  // Parameter processing with type safety
-  const getStringParam = (param: string | string[] | undefined): string | undefined => {
-    if (Array.isArray(param)) return param[0];
-    return param;
-  };
 
   const query = getStringParam(queryParams.query);
   const category = getStringParam(queryParams.category);
@@ -70,6 +69,7 @@ export async function searchTendersService(access_token:token,queryParams: Searc
   const page = Math.max(1, Number(getStringParam(queryParams.page)) || 1);
   const limit = Math.max(1, Number(getStringParam(queryParams.limit))) || 10;
   const offset = (page - 1) * limit;
+  
   const supabase = createSupabaseClient(access_token.token);
   let dbQuery = supabase
     .from('open_tender_notices')
@@ -126,3 +126,5 @@ export async function searchTendersService(access_token:token,queryParams: Searc
     }
   };
 }
+
+

@@ -7,6 +7,7 @@ const white_list = [
   '/api/v1/auth/login',
   '/api/v1/auth/forgotpassword',
   '/api/v1/auth/resetpassword',
+  '/filterTendersWithAI',
   '/'
 ];
 
@@ -17,6 +18,19 @@ declare module "express" {
       email: string;
       name: string;
     };
+  }
+}
+// Extend Request type to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: string;
+        name: string;
+        email: string;
+        // Add other user properties you need
+      };
+    }
   }
 }
 

@@ -26,6 +26,11 @@ const Sidebar = () => {
             Benchmarking
           </Link>
         </li>
+        <li>
+          <Link to="/dashboard" className="block p-3 bg-gray-700 rounded">
+            Submitted Tenders
+          </Link>
+        </li>
       </ul>
     </nav>
   );

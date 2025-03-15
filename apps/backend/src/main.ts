@@ -134,7 +134,8 @@ app.post('/getRfpAnalysis', async (req, res) => {
       ],
     })
 
-    const response = completion.choices[0].message.content
+    const response = completion.choices[0].message.content;
+
     const { error } = await supabase
       .from('rfp_analysis')
       .insert({ data: response })
@@ -142,9 +143,12 @@ app.post('/getRfpAnalysis', async (req, res) => {
     if (error) {
       console.error('Error storing RFP analysis:', error)
       return res.status(500).json({ error })
+      // return res.status(500).json({ error: 'Failed to store RFP analysis' });
     }
 
-    res.json(response || '{}')
+    res.json(response || '{}');
+    // return res.json({ analysis: response });
+
   } catch (error) {
     console.error('Error analyzing RFP:', error)
     res.status(500).json({ error: 'Failed to analyze RFP' })
@@ -412,6 +416,8 @@ app.get('/getOpenTenderNoticesFromDB', async (req, res) => {
   }
 })
 
+
+
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/tenders', tenderRouter)
 app.use('/api/v1/bids', bidRouter)
@@ -458,3 +464,6 @@ const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
   console.log(`Listening at http://localhost:${PORT}`);
 });
+
+
+export { io, httpServer, app };

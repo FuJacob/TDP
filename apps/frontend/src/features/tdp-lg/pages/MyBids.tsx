@@ -12,16 +12,20 @@ interface Bid {
 
 const MyBids: React.FC = () => {
   const [bids, setBids] = useState<Bid[]>([]);
+  const [allBids, setAllBids] = useState<Bid[]>([]);
+  const [filteredBids, setFilteredBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  
   const bidCounts = {
-    Pending: bids.filter((b) => b.status === "Pending").length,
-    "Under Review": bids.filter((b) => b.status === "Under Review").length,
-    Accepted: bids.filter((b) => b.status === "Accepted").length,
-    Rejected: bids.filter((b) => b.status === "Rejected").length,
-    Awarded: bids.filter((b) => b.status === "Awarded").length,
+    Pending: filteredBids.filter((b) => b.status === "Pending").length,
+    "Under Review": filteredBids.filter((b) => b.status === "Under Review").length,
+    Accepted: filteredBids.filter((b) => b.status === "Accepted").length,
+    Rejected: filteredBids.filter((b) => b.status === "Rejected").length,
+    Awarded: filteredBids.filter((b) => b.status === "Awarded").length,
   };
+  
 
   // State for filter section visibility
   const [showFilters, setShowFilters] = useState<boolean>(false);
@@ -34,6 +38,7 @@ const MyBids: React.FC = () => {
     setEndDate("");
     setSortKey("submissionDate");
     setSortOrder("asc");
+    setFilteredBids(allBids);
   };
 
   useEffect(() => {
@@ -62,12 +67,11 @@ const MyBids: React.FC = () => {
 
         // The backend returns: { bids: [...], pagination: {...} }
         const data = await response.json();
-        console.log("Raw response data:", data); // <--- Log #1
+        console.log("Raw response data:", data);
 
-        // If data.bids is empty, you'll see an empty array in the console
         const rawBids = data.bids || [];
 
-        // Convert raw DB columns to your front-end fields
+        // Convert raw DB columns to front-end fields
         const mappedBids = rawBids.map((row: any) => ({
           id: row.bid_id,
           title: row.bid_title,
@@ -77,8 +81,9 @@ const MyBids: React.FC = () => {
           lastUpdated: row.last_updated_date,
         }));
 
-        console.log("Mapped bids:", mappedBids); // <--- Log #2
-        setBids(mappedBids);
+        console.log("Mapped bids:", mappedBids); 
+        setAllBids(mappedBids);
+        setFilteredBids(mappedBids);
       } catch (err) {
         setError("Error fetching bids. Please try again.");
       } finally {
@@ -98,30 +103,49 @@ const MyBids: React.FC = () => {
   const [sortKey, setSortKey] = useState<string>("submissionDate");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  // Filtered Data
-  const filteredBids = bids.filter((bid) => {
-    const isStatusMatch = statusFilter ? bid.status === statusFilter : true;
-    const isDateMatch =
-      (!startDate || new Date(bid.submissionDate) >= new Date(startDate)) &&
-      (!endDate || new Date(bid.submissionDate) <= new Date(endDate));
-      const isSearchMatch = searchQuery ? bid.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
+  const handleFilter = () => {
+    let filtered = [...allBids];
+  
+    if (statusFilter) {
+      filtered = filtered.filter((bid) => bid.status === statusFilter);
+    }
+  
+    if (startDate && endDate) {
+      filtered = filtered.filter(
+        (bid) =>
+          new Date(bid.submissionDate) >= new Date(startDate) &&
+          new Date(bid.submissionDate) <= new Date(endDate)
+      );
+    }
+  
+    if (searchQuery) {
+      filtered = filtered.filter((bid) =>
+        bid.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+  
+    console.log("Filtered bids:", filtered);
+    const sortedFilteredBids = sortBids(filtered);
+    setFilteredBids(sortedFilteredBids);
+    setShowFilters(false);
+  };
 
-      return isStatusMatch && isDateMatch && isSearchMatch;
-  });
+  
 
   // Sorting Function
-  const sortedBids = [...filteredBids].sort((a, b) => {
-    let comparison = 0;
-
-    if (sortKey === "submissionDate" || sortKey === "lastUpdated") {
-      comparison =
-        new Date(a[sortKey]).getTime() - new Date(b[sortKey]).getTime();
-    } else if (sortKey === "status") {
-      comparison = a.status.localeCompare(b.status);
-    }
-
-    return sortOrder === "asc" ? comparison : -comparison;
-  });
+  const sortBids = (bidsToSort: Bid[]) => {
+    return [...bidsToSort].sort((a, b) => {
+      let comparison = 0;
+  
+      if (sortKey === "submissionDate" || sortKey === "lastUpdated") {
+        comparison = new Date(a[sortKey]).getTime() - new Date(b[sortKey]).getTime();
+      } else if (sortKey === "status") {
+        comparison = a.status.localeCompare(b.status);
+      }
+  
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+  };
 
   return (
     <div className="p-6">
@@ -132,7 +156,7 @@ const MyBids: React.FC = () => {
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search bids by title..."
+          placeholder="Search bids by title and hit apply (in Filters)."
           className="border p-2 rounded-md w-full"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -225,6 +249,22 @@ const MyBids: React.FC = () => {
               <option value="desc">Descending</option>
             </select>
           </div>
+      
+          {/* Apply Filters & Close Button */}
+          <div className="flex justify-between w-full mt-4">
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+              onClick={handleFilter}
+            >
+              Apply Filters
+            </button>
+            <button
+              className="text-gray-500 underline"
+              onClick={() => setShowFilters(false)}
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
 
@@ -241,7 +281,7 @@ const MyBids: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedBids.map((bid) => (
+          {filteredBids.map((bid) => (
             <tr key={bid.id} className="text-center">
               <td className="border p-2">{bid.title}</td>
               <td className="border p-2">{bid.tenderName}</td>

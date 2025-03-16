@@ -1,6 +1,8 @@
 import React from "react";
+import { Link } from 'react-router-dom'
 
 interface Tender {
+  submission_id: string
   title: string;
   submittedAt: string;
   status: string;
@@ -44,6 +46,7 @@ const TenderList: React.FC<TenderListProps> = ({
           <th className="p-2 cursor-pointer" onClick={() => onSort("submittedAt")}>
             Last Updated {sortField === "updated_at" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
           </th>
+          <th className="p-2">More Info</th>
         </tr>
       </thead>
       <tbody>
@@ -60,6 +63,11 @@ const TenderList: React.FC<TenderListProps> = ({
               <td className="p-2">{tender.submittedAt || "N/A"}</td>
               <td className="p-2">{tender.status}</td>
               <td className="p-2">{tender.submittedAt || "N/A"}</td>
+              <td className="p-2">
+              <Link to={`/tender/${tender.submission_id}`} className="text-blue-500 hover:underline">
+                More Info
+              </Link>
+            </td>
             </tr>
           ))
         )}

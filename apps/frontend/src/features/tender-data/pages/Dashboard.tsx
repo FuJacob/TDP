@@ -3,15 +3,17 @@ import TenderList from './TenderList'
 import { Pagination, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import io from "socket.io-client";
 
-const socket = io("http://localhost:3000" , { transports: ["websocket"] });
+const token = localStorage.getItem("access_token");
 
-socket.on("connect", () => {
-  console.log("Connected to WebSocket server");
-});
+// const socket = io("http://localhost:3000" , { transports: ["websocket"] });
 
-socket.on("connect_error", (err) => {
-  console.error("Socket connection error:", err);
-});
+// socket.on("connect", () => {
+//   console.log("Connected to WebSocket server");
+// });
+
+// socket.on("connect_error", (err) => {
+//   console.error("Socket connection error:", err);
+// });
 
 interface SubTender {
   subId: string;
@@ -142,21 +144,53 @@ const Dashboard: React.FC = () => {
   };
 
 
+  // useEffect(() => {
+  //   fetchTenders();
+
+  //   // Listen for real-time updates
+  //   socket.on("subTenderUpdated", (data) => {
+  //     console.log("New tender update received:", data);
+
+  //     setTenders((prevTenders) => [...prevTenders, data]);
+  //   });
+
+  //   return () => {
+  //     socket.off("subTenderUpdated");
+  //   };
+  // }, []);
+
   useEffect(() => {
     fetchTenders();
-
-    // Listen for real-time updates
-    socket.on("subTenderUpdated", (data) => {
-      console.log("New tender update received:", data);
-
-      setTenders((prevTenders) => [...prevTenders, data]);
+  
+    const socket = io("http://localhost:3000", {
+      transports: ["polling"], // Force long polling if WebSocket fails
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 3000,
+      auth: {
+        token: token
+      }
     });
-
+  
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+    });
+  
+    socket.on("subTenderUpdated", (data) => {
+      console.log("Tender updated:", data.subtender);
+      setTenders((prevTenders) =>
+        prevTenders.map((t) => (t.id === data.subtender.id ? data.subtender : t))
+      );
+    });
+  
+    socket.on("connect_error", (err) => {
+      console.error("WebSocket connection error:", err);
+    });
+  
     return () => {
-      socket.off("subTenderUpdated");
+      socket.disconnect();
     };
   }, []);
-
 
   
 

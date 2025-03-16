@@ -433,26 +433,29 @@ io.on('connection', (socket) => {
   console.log('A client connected:', socket.id);
 });
 
+
+
 app.set('io', io); // Make io accessible in your controllers
 
-// Subscribe to the insert events section of the DB so that users know when new bids are updated
+
+
+
+// Subscribe to the insert events section of the DB so that users know when new tenders are updated
 const tenderChannel = supabase
   .channel('submitted_tenders_changes')
-  .on(
-    'postgres_changes',
-    {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'submitted_tenders',
-    },
+  .on('postgres_changes', 
+    { event: 'INSERT', schema: 'public', table: 'submitted_tenders' }, 
     (payload) => {
-      const newTender = payload.new;
-      console.log('New row inserted into submitted_tenders:', newTender);
-      // Display data to connected clients
-      io.emit('subTenderUpdated', { subtender: newTender });
-    }
-  )
-.subscribe();
+      console.log('New row inserted:', payload.new);
+      io.emit('subTenderUpdated', { subtender: payload.new });
+    })
+  .on('postgres_changes', 
+    { event: 'UPDATE', schema: 'public', table: 'submitted_tenders' }, 
+    (payload) => {
+      console.log('Row updated:', payload.new);
+      io.emit('subTenderUpdated', { subtender: payload.new });
+    })
+  .subscribe();
 
 //routes middleware
 // app.use('/api', tenderRoutes);
@@ -464,3 +467,4 @@ server.on('error', console.error)
 
 
 export { io, httpServer, app };
+

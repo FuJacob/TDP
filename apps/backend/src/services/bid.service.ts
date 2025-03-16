@@ -1,13 +1,14 @@
 // apps/backend/src/services/bid.service.ts
-import { supabase } from '../utils/supabaseClient';
-
+import {createSupabaseClient} from '../utils/createSupabaseClient';
 interface BidQueryParams {
   page?: number;
   limit?: number;
   sort_by?: string;
   filters?: Record<string, string | undefined>;
 }
-
+interface token{
+  token:string
+}
 export interface SubmittedBid {
   bid_id: string;
   bid_title: string;
@@ -31,12 +32,13 @@ export interface BidSearchResult {
 }
 
 export async function getBidsForUser(
+  access_token: token,
   userId: string,
   queryParams: BidQueryParams
 ): Promise<BidSearchResult> {
   const { page = 1, limit = 10, sort_by = 'last_updated_date', filters = {} } = queryParams;
   const offset = (page - 1) * limit;
-
+  const supabase = createSupabaseClient(access_token.token);
   let dbQuery = supabase
     .from('submitted_bids')
     .select('*', { count: 'exact' })
@@ -71,7 +73,8 @@ export async function getBidsForUser(
   };
 }
 
-export async function getBidById(userId: string, bidId: string): Promise<SubmittedBid | null> {
+export async function getBidById(access_token: token,userId: string, bidId: string): Promise<SubmittedBid | null> {
+  const supabase = createSupabaseClient(access_token.token);
   const { data, error } = await supabase
     .from('submitted_bids')
     .select('*')
@@ -90,10 +93,12 @@ export async function getBidById(userId: string, bidId: string): Promise<Submitt
 }
 
 export async function updateBidStatus(
+  access_token: token,
   userId: string,
   bidId: string,
   newStatus: string
 ): Promise<SubmittedBid | null> {
+  const supabase = createSupabaseClient(access_token.token);
   const { data, error } = await supabase
     .from('submitted_bids')
     .update({

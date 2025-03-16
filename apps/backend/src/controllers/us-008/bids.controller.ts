@@ -3,8 +3,8 @@ import { Request, Response } from 'express';
 import * as bidService from '../../services/bid.service';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import { io } from "../../main"; // Import Socket.IO instance from main.ts TRIAL
-import { supabase } from '../utils/supabaseClient';
+// import { io } from "../../main"; // Import Socket.IO instance from main.ts TRIAL
+// import { supabase } from '../utils/supabaseClient';
 
 dotenv.config();
 
@@ -40,6 +40,7 @@ const sendEmail = async (
 };
 
 export async function getBidsHandler(req: Request, res: Response) {
+  const token = req.token
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -52,7 +53,7 @@ export async function getBidsHandler(req: Request, res: Response) {
       bid_status: req.query.bid_status as string | undefined,
     };
 
-    const { bids, pagination } = await bidService.getBidsForUser(userId, {
+    const { bids, pagination } = await bidService.getBidsForUser(token,userId, {
       page,
       limit,
       sort_by,
@@ -67,13 +68,14 @@ export async function getBidsHandler(req: Request, res: Response) {
 }
 
 export async function getSingleBidHandler(req: Request, res: Response) {
+  const token = req.token;
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const userId = req.user.userId;
     const { id } = req.params;
-    const bid = await bidService.getBidById(userId, id);
+    const bid = await bidService.getBidById(token,userId, id);
     if (!bid) {
       return res.status(404).json({ error: 'Bid not found' });
     }
@@ -85,6 +87,7 @@ export async function getSingleBidHandler(req: Request, res: Response) {
 }
 
 export async function updateBidStatusHandler(req: Request, res: Response) {
+  const token = req.token;
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -95,7 +98,7 @@ export async function updateBidStatusHandler(req: Request, res: Response) {
     if (!newStatus) {
       return res.status(400).json({ error: 'newStatus is required' });
     }
-    const updatedBid = await bidService.updateBidStatus(userId, id, newStatus);
+    const updatedBid = await bidService.updateBidStatus(token,userId, id, newStatus);
     if (!updatedBid) {
       return res.status(404).json({ error: 'Bid not found or not updated' });
     }

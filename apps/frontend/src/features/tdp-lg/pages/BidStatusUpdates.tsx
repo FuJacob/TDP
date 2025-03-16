@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import io, { Socket } from 'socket.io-client';
 import 'react-toastify/dist/ReactToastify.css';
-
+import {initSocket, getSocket} from '../../../utils/socket';
 // Optional interface for updated bids
 interface UpdatedBid {
   bid_id?: string;
@@ -45,21 +45,8 @@ const BidStatusUpdates: React.FC = () => {
   }, [lastUpdateTime]);
 
   useEffect(() => {
-    // On mount, connect to Socket.IO
-    const token = localStorage.getItem('access_token'); 
-    // If your Node code requires a Bearer token in the handshake, 
-    // you might pass it as a query param or in an auth header 
-    // (Socket.IO doesn't natively do headers without extra config).
-    
-    // Example: pass token as a query param
-    const socket = io('http://localhost:3000', {
-      transports: ['websocket'],
-      query: {
-        token: token || '',
-      },
-    });
-
-    socketRef.current = socket;
+    const token = localStorage.getItem('access_token') || '';
+    const socket = initSocket(token);
 
     socket.on('connect', () => {
       console.log('Connected to socket:', socket.id);
@@ -71,28 +58,28 @@ const BidStatusUpdates: React.FC = () => {
       setConnected(false);
     });
 
-    // Listen for 'bidStatusUpdated' events from the backend
-    socket.on('bidStatusUpdated', (data: { bid: UpdatedBid }) => {
+    socket.on('bidStatusUpdated', (data: { bid: { bid_id: string; bid_status: string } }) => {
       console.log('Received bid status update:', data);
-      // Show a toast notification
       toast.info(`Bid status updated: ${data.bid.bid_id} => ${data.bid.bid_status}`);
-
-      // Update local list of updates
       setUpdates(prev => [...prev, data.bid]);
-      // Refresh lastUpdateTime so we don't show the waiting message
       setLastUpdateTime(Date.now());
     });
 
-    // trial
-    socket.on("notification", (data: { id: string; message: string }) => {
-      console.log("New notification:", data);
-      toast.success(data.message); // Pop-up notification
-      setNotifications((prev) => [{ ...data, createdAt: new Date().toISOString() }, ...prev]);
+    socket.on('notification', (data: { id: string; message: string }) => {
+      console.log('New notification:', data);
+      toast.success(data.message);
+      setNotifications(prev => [
+        { ...data, createdAt: new Date().toISOString() },
+        ...prev,
+      ]);
     });
-    // trial
-    // Cleanup on unmount
+
+    // Cleanup listeners on unmount
     return () => {
-      socket.disconnect();
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('bidStatusUpdated');
+      socket.off('notification');
     };
   }, []);
 

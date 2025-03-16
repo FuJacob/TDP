@@ -15,8 +15,7 @@ import { logger } from './middleware/logger.middleware';
 import { delay } from './middleware/delay.middleware';
 import { auth } from './middleware/auth.middleware';
 import dotenv from 'dotenv';
-//console.log('Logger:', logger);
-//console.log('Auth Router:', authRouter);
+import {initSupaBaseSubscription} from './utils/supabase_subscription';
 
 dotenv.config();
 
@@ -256,15 +255,20 @@ app.post('/filterOpenTenderNotices', async (req, res) => {
     if (error) {
       throw new Error(`Failed to fetch tender notices: ${error.message}`)
     }
-
+    const token = req.token;
     // Filter tenders using AI
     const response = await axios.post(
       'http://localhost:3000/filterTendersWithAI',
       {
         prompt: req.body.prompt,
         data: data,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    )
+    );
 
     const filteredIDs = JSON.parse(response.data).matches
 
@@ -440,25 +444,7 @@ io.on('connection', (socket) => {
 app.set('io', io); // Make io accessible in your controllers
 // SUPABASE REAL-TIME SUBSCRIPTION
 
-// Subscribe to the insert events section of the DB so that users know when new bids are updated
-const bidChannel = supabase
-  .channel('submitted_bids_changes')
-  .on(
-    'postgres_changes',
-    {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'submitted_bids',
-    },
-    (payload) => {
-      const newBid = payload.new;
-      console.log('New row inserted into submitted_bids:', newBid);
-      // Display data to connected clients
-      io.emit('bidStatusUpdated', { bid: newBid });
-    }
-  )
-  .subscribe();
-
+initSupaBaseSubscription(io);
 // Start the HTTP server (instead of app.listen)
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

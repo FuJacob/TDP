@@ -1,4 +1,3 @@
-// apps/backend/src/middleware/auth.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../utils/supabaseClient';
 
@@ -7,12 +6,12 @@ const white_list = [
   '/api/v1/auth/login',
   '/api/v1/auth/forgotpassword',
   '/api/v1/auth/resetpassword',
-  '/filterTendersWithAI',
   '/'
 ];
 
-declare module "express" {
+declare module 'express' {
   export interface Request {
+    token?: string;
     user?: {
       userId: string;
       email: string;
@@ -20,22 +19,9 @@ declare module "express" {
     };
   }
 }
-// Extend Request type to include user property
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: string;
-        name: string;
-        email: string;
-        // Add other user properties you need
-      };
-    }
-  }
-}
 
 export const auth = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-  // If the requested URL is whitelisted, skip authentication
+  // Skip authentication for whitelisted URLs
   if (white_list.some(item => req.originalUrl === item)) {
     return next();
   }
@@ -50,6 +36,9 @@ export const auth = async (req: Request, res: Response, next: NextFunction): Pro
     });
   }
 
+  // Attach the token to req.token
+  req.token = token;
+
   try {
     // Retrieve user info from Supabase using the token
     const { data, error } = await supabase.auth.getUser(token);
@@ -58,7 +47,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction): Pro
       throw new Error(error?.message || 'Invalid user');
     }
 
-    // Attach the user's UUID (id), email, and name to the request object
+    // Attach the user information to req.user
     req.user = {
       userId: data.user.id,
       email: data.user.email || '',
@@ -74,4 +63,3 @@ export const auth = async (req: Request, res: Response, next: NextFunction): Pro
     });
   }
 };
-

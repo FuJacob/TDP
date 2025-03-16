@@ -4,10 +4,10 @@ import { User } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
-import jwt from 'jsonwebtoken';
+// import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secret';
-const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '1h';
+// const JWT_SECRET = process.env.JWT_SECRET || 'your_secret';
+// const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '1h';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -138,7 +138,6 @@ export async function loginUser(email: string, password: string): Promise<LoginR
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  console.log(">>>>>Data", data);
   
   if (error) {
     if (!failedLogins[email]) {
@@ -166,11 +165,11 @@ export async function loginUser(email: string, password: string): Promise<LoginR
   }
 
   // Generate a custom JWT that includes the userId
-  const token = jwt.sign(
-    { userId: user.id, email: user.email, name: user.user_metadata?.first_name || '' },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRATION }
-  );
+  // const token = jwt.sign(
+  //   { userId: user.id, email: user.email, name: user.user_metadata?.first_name || '' },
+  //   JWT_SECRET,
+  //   { expiresIn: JWT_EXPIRATION }
+  // );
 
   const filteredUser = {
     id: user.id,

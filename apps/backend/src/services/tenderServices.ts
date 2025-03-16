@@ -94,11 +94,8 @@ export async function searchTendersService(access_token:token,queryParams: Searc
       break;
     // Add more sorting options if needed
   }
-  console.log(">>>dbQuery",dbQuery);
+
   const { data, error, count } = await dbQuery;
-  // console.log(">>>data",data);
-  console.log(">>>error",error);
-  console.log(">>>count",count);
 
   if (error) throw new Error(`Database error: ${error.message}`);
 

@@ -1,18 +1,18 @@
 import {Request, Response }  from 'express';
 const submittenderServices = require('../../services/submittenderServices');
 import { io } from "../../main";
-import { supabase } from '../../utils/supabaseClient';
+// import { supabase } from '../../utils/supabaseClient';
 
 // Fetch list of tenders for authenticated users
 export const subUserTenderHandler = async (req: Request, res: Response): Promise<Response> => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(' ')?.[1];
     try {
 
         if (!req.user) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
         const userId = req.user.userId;
-        console.log("UserID is being displayed or not>>>>>>>>>",userId);
-
         // Extract and validate query parameters
         const queryParams = {
             status: req.query.status,
@@ -23,7 +23,7 @@ export const subUserTenderHandler = async (req: Request, res: Response): Promise
         };
 
         // Pass processed parameters to service
-        const result = await submittenderServices.searchSubTendersService(userId, queryParams);
+        const result = await submittenderServices.searchSubTendersService(token,userId, queryParams);
        
         return res.status(200).json(result);
     } catch (error: unknown) {
@@ -37,7 +37,10 @@ export const subUserTenderHandler = async (req: Request, res: Response): Promise
 
 // Update tender info
 export async function updateSubTenderHandler(req: Request, res: Response) {
+
     try {
+      const authHeader = req.headers.authorization;
+      const token = authHeader?.split(' ')?.[1];
       if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
@@ -48,7 +51,7 @@ export async function updateSubTenderHandler(req: Request, res: Response) {
       if (!newData) {
         return res.status(400).json({ error: 'newStatus is required' });
       }
-      const updatedSubTender = await submittenderServices.updateSubTender(userId, id, newData);
+      const updatedSubTender = await submittenderServices.updateSubTender(token,userId, id, newData);
       if (!updatedSubTender) {
         return res.status(404).json({ error: 'Tender not found or not updated' });
       }
@@ -66,13 +69,16 @@ export async function updateSubTenderHandler(req: Request, res: Response) {
 
 
 export async function getSubTenderByIDHandler(req: Request, res: Response) {
+  
     try {
+      const authHeader = req.headers.authorization;
+      const token = authHeader?.split(' ')?.[1];
       if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
       const userId = req.user.userId;
       const { id } = req.params;
-      const tender = await submittenderServices.getSubTenderById(userId, id);
+      const tender = await submittenderServices.getSubTenderById(token,userId, id);
       if (!tender) {
         return res.status(404).json({ error: 'Tender not found' });
       }

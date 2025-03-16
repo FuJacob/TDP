@@ -2,9 +2,7 @@ import { Request, Response } from 'express';
 const tenderServices = require('../../services/tenderServices');
 
 export const searchTendersHandler = async (req: Request, res: Response): Promise<Response> => {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.split(' ')?.[1];
-  console.log('Token:', token);
+  const token = req.token;
   try {
     // Extract and validate query parameters
     const queryParams = {

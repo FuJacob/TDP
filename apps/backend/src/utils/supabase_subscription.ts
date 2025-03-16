@@ -1,43 +1,87 @@
-// subscriptions/bidSubscription.ts
-import { supabase } from '../utils/supabaseClient'; // adjust the path as needed
+// apps/backend/src/subscriptions/initSupaBaseSubscription.ts
+import { supabase } from '../utils/supabaseClient';
 import { Server } from 'socket.io';
 
-// This function initializes the subscription and emits events to connected clients via Socket.IO.
 export function initSupaBaseSubscription(io: Server) {
-  const bidChannel = supabase
-    .channel('submitted_bids_changes')
+  //submitted_bids subscriptions
+  // INSERT
+  supabase
+    .channel('submitted_bids_insert')
     .on(
       'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'submitted_bids',
-      },
+      { event: 'INSERT', schema: 'public', table: 'submitted_bids' },
       (payload) => {
-        const newBid = payload.new;
-        console.log('New row inserted into submitted_bids:', newBid);
-        // Emit the bid update event to all connected clients
-        io.emit('bidStatusUpdated', { bid: newBid });
-      }
-    )
-    .subscribe();
-const tenderChannel = supabase
-    .channel('submitted_tenderChannel_changes')
-    .on(
-      'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'submitted_tenders',
-      },
-      (payload) => {
-        const newTender = payload.new;
-        console.log('New row inserted into submitted_bids:', newTender);
-        // Emit the bid update event to all connected clients
-        io.emit('subTenderUpdated', { tender: newTender });
+        console.log('INSERT on submitted_bids:', payload.new);
+        
+        io.emit('bidInserted', { bid: payload.new });
       }
     )
     .subscribe();
 
-  return ;
+  // UPDATE
+  supabase
+    .channel('submitted_bids_update')
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'submitted_bids' },
+      (payload) => {
+        console.log('UPDATE on submitted_bids:', payload.new);
+        io.emit('bidUpdated', { bid: payload.new });
+      }
+    )
+    .subscribe();
+
+  // DELETE
+  supabase
+    .channel('submitted_bids_delete')
+    .on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'public', table: 'submitted_bids' },
+      (payload) => {
+        console.log('DELETE on submitted_bids:', payload.old);
+        io.emit('bidDeleted', { bid: payload.old });
+      }
+    )
+    .subscribe();
+
+  //  submitted_tenders subscriptions
+  // INSERT
+  supabase
+    .channel('submitted_tenders_insert')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'submitted_tenders' },
+      (payload) => {
+        console.log('INSERT on submitted_tenders:', payload.new);
+        io.emit('tenderInserted', { tender: payload.new });
+      }
+    )
+    .subscribe();
+
+  // UPDATE
+  supabase
+    .channel('submitted_tenders_update')
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'submitted_tenders' },
+      (payload) => {
+        console.log('UPDATE on submitted_tenders:', payload.new);
+        io.emit('tenderUpdated', { tender: payload.new });
+      }
+    )
+    .subscribe();
+
+  // DELETE
+  supabase
+    .channel('submitted_tenders_delete')
+    .on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'public', table: 'submitted_tenders' },
+      (payload) => {
+        console.log('DELETE on submitted_tenders:', payload.old);
+        io.emit('tenderDeleted', { tender: payload.old });
+      }
+    )
+    .subscribe();
 }
+

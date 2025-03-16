@@ -1,123 +1,137 @@
 // apps/frontend/src/features/tdp-lg/pages/BidStatusUpdates.tsx
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import io, { Socket } from 'socket.io-client';
+import io from 'socket.io-client';
 import 'react-toastify/dist/ReactToastify.css';
-import {initSocket, getSocket} from '../../../utils/socket';
-// Optional interface for updated bids
+
 interface UpdatedBid {
   bid_id?: string;
   bid_status?: string;
-  [key: string]: any; // fallback for any other fields
+  [key: string]: any;
+}
+interface UpdatedTender {
+  submission_id?: string;
+  status?: string;
+  [key: string]: any;
 }
 
-// trial
-// Interface for notifications
-interface Notification {
-  id: string;
-  message: string;
-  createdAt: string;
-}
-// trial
 const BidStatusUpdates: React.FC = () => {
   const [connected, setConnected] = useState<boolean>(false);
-  const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
-  const [updates, setUpdates] = useState<UpdatedBid[]>([]);
-  const [waitingMessage, setWaitingMessage] = useState<string>('');
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const socketRef = useRef<Socket | null>(null);
 
-  // We'll wait 30 seconds before showing "Waiting for latest status update..."
-  const WAIT_INTERVAL_MS = 30000;
-
-  useEffect(() => {
-    // We set an interval to check if we've received updates in the last 30s
-    const intervalId = setInterval(() => {
-      const now = Date.now();
-      if (now - lastUpdateTime > WAIT_INTERVAL_MS) {
-        setWaitingMessage('Waiting for the latest status update…');
-      } else {
-        setWaitingMessage('');
-      }
-    }, 5000); // check every 5s
-
-    return () => clearInterval(intervalId);
-  }, [lastUpdateTime]);
+  
+  const [bidEvents, setBidEvents] = useState<string[]>([]);
+  const [tenderEvents, setTenderEvents] = useState<string[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token') || '';
-    const socket = initSocket(token);
 
-    socket.on('connect', () => {
-      console.log('Connected to socket:', socket.id);
-      setConnected(true);
+    // Connect via socket.io
+    const socket = io('http://localhost:3000', {
+      transports: ['websocket'],
+      query: { token },
     });
 
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+      setConnected(true);
+    });
     socket.on('disconnect', () => {
-      console.log('Disconnected from socket');
+      console.log('Socket disconnected');
       setConnected(false);
     });
 
-    socket.on('bidStatusUpdated', (data: { bid: { bid_id: string; bid_status: string } }) => {
-      console.log('Received bid status update:', data);
-      toast.info(`Bid status updated: ${data.bid.bid_id} => ${data.bid.bid_status}`);
-      setUpdates(prev => [...prev, data.bid]);
-      setLastUpdateTime(Date.now());
-    });
-
-    socket.on('notification', (data: { id: string; message: string }) => {
-      console.log('New notification:', data);
-      toast.success(data.message);
-      setNotifications(prev => [
-        { ...data, createdAt: new Date().toISOString() },
+    // BIDS
+    socket.on('bidInserted', (data: { bid: UpdatedBid }) => {
+      console.log('bidInserted event:', data.bid);
+      if (!data.bid) return;
+      toast.info(`New bid inserted: ${data.bid.bid_id}`);
+      setBidEvents((prev) => [
+        `INSERT => ID: ${data.bid.bid_id}`,
         ...prev,
       ]);
     });
 
-    // Cleanup listeners on unmount
+    socket.on('bidUpdated', (data: { bid: UpdatedBid }) => {
+      console.log('bidUpdated event:', data.bid);
+      if (!data.bid) return;
+      toast.info(`Bid updated: ${data.bid.bid_id} => ${data.bid.bid_status}`);
+      setBidEvents((prev) => [
+        `UPDATE => ID: ${data.bid.bid_id}, status: ${data.bid.bid_status}`,
+        ...prev,
+      ]);
+    });
+
+    socket.on('bidDeleted', (data: { bid: UpdatedBid }) => {
+      console.log('bidDeleted event:', data.bid);
+      if (!data.bid) return;
+      toast.error(`Bid deleted: ${data.bid.bid_id}`);
+      setBidEvents((prev) => [
+        `DELETE => ID: ${data.bid.bid_id}`,
+        ...prev,
+      ]);
+    });
+
+    // TENDERS
+    socket.on('tenderInserted', (data: { tender: UpdatedTender }) => {
+      console.log('tenderInserted event:', data.tender);
+      if (!data.tender) return;
+      toast.info(`New tender inserted: ${data.tender.submission_id}`);
+      setTenderEvents((prev) => [
+        `INSERT => ID: ${data.tender.submission_id}`,
+        ...prev,
+      ]);
+    });
+
+    socket.on('tenderUpdated', (data: { tender: UpdatedTender }) => {
+      console.log('tenderUpdated event:', data.tender);
+      if (!data.tender) return;
+      toast.info(`Tender updated: ${data.tender.submission_id} => ${data.tender.status}`);
+      setTenderEvents((prev) => [
+        `UPDATE => ID: ${data.tender.submission_id}, status: ${data.tender.status}`,
+        ...prev,
+      ]);
+    });
+
+    socket.on('tenderDeleted', (data: { tender: UpdatedTender }) => {
+      console.log('tenderDeleted event:', data.tender);
+      if (!data.tender) return;
+      toast.error(`Tender deleted: ${data.tender.submission_id}`);
+      setTenderEvents((prev) => [
+        `DELETE => ID: ${data.tender.submission_id}`,
+        ...prev,
+      ]);
+    });
+
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('bidStatusUpdated');
-      socket.off('notification');
+      socket.disconnect();
     };
   }, []);
 
   return (
     <div style={{ padding: '1rem' }}>
       <h2>Bid Status Updates</h2>
-      <p>
-        Socket Connection Status: {connected ? 'Connected' : 'Not Connected'}
-      </p>
-      {waitingMessage && (
-        <p style={{ color: 'orange' }}>{waitingMessage}</p>
-      )}
+      <p>Socket Connection: {connected ? 'Connected' : 'Not Connected'}</p>
 
-{/* trial */}
-      <h3>Notifications:</h3>
-      {notifications.length === 0 ? (
-        <p>No notifications received yet.</p>
+      <hr />
+      <h3>Recent Bid Events:</h3>
+      {bidEvents.length === 0 ? (
+        <p>No bid events yet.</p>
       ) : (
         <ul>
-          {notifications.map((notif) => (
-            <li key={notif.id}>
-              {notif.message} - <small>{new Date(notif.createdAt).toLocaleString()}</small>
-            </li>
+          {bidEvents.map((evt, idx) => (
+            <li key={idx}>{evt}</li>
           ))}
         </ul>
       )}
 
-{/* trial */}
-      <h3>Recent Updates:</h3>
-      {updates.length === 0 ? (
-        <p>No updates received yet.</p>
+      <hr />
+      <h3>Recent Tender Events:</h3>
+      {tenderEvents.length === 0 ? (
+        <p>No tender events yet.</p>
       ) : (
         <ul>
-          {updates.map((bid, idx) => (
-            <li key={idx}>
-              <strong>Bid ID:</strong> {bid.bid_id || 'N/A'} |{' '}
-              <strong>Status:</strong> {bid.bid_status || 'N/A'}
-            </li>
+          {tenderEvents.map((evt, idx) => (
+            <li key={idx}>{evt}</li>
           ))}
         </ul>
       )}
@@ -126,3 +140,4 @@ const BidStatusUpdates: React.FC = () => {
 };
 
 export default BidStatusUpdates;
+

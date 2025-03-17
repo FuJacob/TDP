@@ -441,6 +441,8 @@ io.on('connection', (socket) => {
   console.log('A client connected:', socket.id);
 });
 
+
+
 app.set('io', io); // Make io accessible in your controllers
 // SUPABASE REAL-TIME SUBSCRIPTION
 
@@ -453,3 +455,4 @@ httpServer.listen(PORT, () => {
 
 
 export { io, httpServer, app };
+

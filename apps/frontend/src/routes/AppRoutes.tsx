@@ -8,6 +8,7 @@ import ForgotResetPassword from "../features/tdp-lg/pages/ForgotResetPassword";
 import Login from "../features/tdp-lg/pages/login";
 import SignUp from "../features/tdp-lg/pages/SignUp";
 import TenderSearch from "../features/tdp-lg/pages/TenderSearch";
+import TenderDetails from "../features/tender-data/pages/SubmittedTenderDetails";
 import Dashboard from "../features/tender-data/pages/Dashboard";
 import BidStatusUpdates from '../features/tdp-lg/pages/BidStatusUpdates';
 import MyBids from "../features/tdp-lg/pages/MyBids";
@@ -25,6 +26,7 @@ const AppRoutes = () => {
         <Route path="/forgot-reset-password/:token" element={<ForgotResetPassword />} />
         <Route path="/signUp" element={<SignUp />} />
         <Route path="/tendersearch" element={<TenderSearch />} />
+        <Route path="tender/:id" element={<TenderDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/bidupdates" element={<BidStatusUpdates />} />
         <Route path="/my-bids" element={<MyBids />} />

@@ -1,8 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import TenderList from './TenderList'
 import { Pagination, Select, MenuItem, SelectChangeEvent } from '@mui/material';
-import { toast } from 'react-toastify';
-import {initSocket} from '../../../utils/socket';
+import io from "socket.io-client";
+
+const token = localStorage.getItem("access_token");
+
+// const socket = io("http://localhost:3000" , { transports: ["websocket"] });
+
+// socket.on("connect", () => {
+//   console.log("Connected to WebSocket server");
+// });
+
+// socket.on("connect_error", (err) => {
+//   console.error("Socket connection error:", err);
+// });
 
 interface SubTender {
   subId: string;
@@ -72,36 +83,53 @@ const Dashboard: React.FC = () => {
   };
 
 
+  // useEffect(() => {
+  //   fetchTenders();
+
+  //   // Listen for real-time updates
+  //   socket.on("subTenderUpdated", (data) => {
+  //     console.log("New tender update received:", data);
+
+  //     setTenders((prevTenders) => [...prevTenders, data]);
+  //   });
+
+  //   return () => {
+  //     socket.off("subTenderUpdated");
+  //   };
+  // }, []);
+
   useEffect(() => {
     fetchTenders();
-    console.log('old tenders', tenders);
+  
+    const socket = io("http://localhost:3000", {
+      transports: ["polling"], // Force long polling if WebSocket fails
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 3000,
+      auth: {
+        token: token
+      }
+    });
+  
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+    });
+  
+    socket.on("subTenderUpdated", (data) => {
+      console.log("Tender updated:", data.subtender);
+      setTenders((prevTenders) =>
+        prevTenders.map((t) => (t.id === data.subtender.id ? data.subtender : t))
+      );
+    });
+  
+    socket.on("connect_error", (err) => {
+      console.error("WebSocket connection error:", err);
+    });
+  
+    return () => {
+      socket.disconnect();
+    };
   }, []);
-
-  useEffect(() => {
-      // Get the token from localStorage and initialize the socket
-      const token = localStorage.getItem('access_token') || '';
-      const socket = initSocket(token);
-  
-      // Listen for real-time tender updates
-      socket.on('subTenderUpdated', (data: any) => {
-        console.log('New tender update received:', data);
-        const rawTenders = [data.tender];
-        // Trim spaces from status values
-        const cleanedsubTenders = rawTenders.map((subtender: SubTender) => ({
-          ...subtender,
-          status: subtender.status.trim(),
-        }));
-  
-        setTenders(prevTenders => [...prevTenders, cleanedsubTenders]);
-        toast.info('New tender update received');
-      });
-  
-      // Cleanup: remove the listener on component unmount
-      return () => {
-        socket.off('subTenderUpdated');
-      };
-    }, []);
-
 
   
 

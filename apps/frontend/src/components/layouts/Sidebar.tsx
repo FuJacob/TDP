@@ -7,7 +7,7 @@ import defaultAvatar from "../../assets/default-avatar.jpg";
 
 const Sidebar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input
   const [profilePicture, setProfilePicture] = useState<string | null>(null); // Local image state
@@ -23,6 +23,20 @@ const Sidebar = () => {
       setProfilePicture(reader.result as string); // Convert image to base64
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleLogout = () => {
+    // Reset the auth state to logged out.
+    setAuth({
+      isAuthenticated: false,
+      user: {
+        email: "",
+        name: "",
+      },
+    });
+    // Optionally remove the token if stored
+    localStorage.removeItem("access_token");
+    navigate('/');
   };
 
   // for picture insertion or deletion
@@ -88,23 +102,32 @@ const Sidebar = () => {
 
        {/* User Profile Section */}
        {auth.isAuthenticated && (
+        <>
         <div className="mt-6 p-3 bg-gray-700 rounded text-center mt-auto">
           {/* Profile Picture Button */}
-          <button onClick={() => {
-              setIsModalOpen(true);
-              closeTenderModal; // had null here before
-            }} className="block mx-auto">
-            <img
-              src={profilePicture || defaultAvatar} // Default avatar if no image
-              alt="User Profile"
-              className="w-16 h-16 rounded-full border-2 border-white object-cover"
-            />
-          </button>
-
-          {/* Username */}
-          <p className="mt-2">{auth.user.name || auth.user.email}</p>
-        </div>
+            <button onClick={() => {
+                setIsModalOpen(true);
+                closeTenderModal; // had null here before
+              }} className="block mx-auto">
+              <img
+                src={profilePicture || defaultAvatar} // Default avatar if no image
+                alt="User Profile"
+                className="w-16 h-16 rounded-full border-2 border-white object-cover"
+              />
+            </button>
+            {/* Username */}
+            <p className="mt-2">{auth.user.name || auth.user.email}</p>
+          </div>
+          {/* Logout Button */}
+            <button
+              onClick={handleLogout} // Call handleLogout when clicked
+              className="mt-3 bg-red-500 text-white text-sm px-3 py-1 rounded hover:bg-red-600 transition"
+            >
+              Logout
+            </button>
+          </>
       )}
+
 
       {/* Hidden file input */}
       <input

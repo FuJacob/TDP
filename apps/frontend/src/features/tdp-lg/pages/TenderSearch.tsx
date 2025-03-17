@@ -37,7 +37,10 @@ const TenderSearch = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedTender, setSelectedTender] = useState<Tender | null>(null);
-  const openTenderModal = (tender: Tender) => setSelectedTender(tender);
+  const openTenderModal = (tender: Tender) => {
+    closeTenderModal();
+    setSelectedTender(tender);
+  };
   const closeTenderModal = () => setSelectedTender(null);
 
   const [pagination, setPagination] = useState<Pagination>({ total: 0, page: 1, limit: 10, totalPages: 0 });
@@ -276,8 +279,8 @@ const TenderSearch = () => {
 
       </div>
       {selectedTender && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded-lg w-[500px] max-h-[80vh] overflow-y-auto shadow-lg">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" style={{ zIndex: 1000 }} onClick={closeTenderModal}>
+        <div className="bg-white p-6 rounded-lg w-[500px] max-h-[80vh] overflow-y-auto shadow-lg" onClick={(e) => e.stopPropagation()}>
           <h2 className="text-xl font-bold">{selectedTender.title}</h2>
           <p><strong>Reference:</strong> {selectedTender.referenceNumber}</p>
           <p><strong>Status:</strong> {selectedTender.status}</p>

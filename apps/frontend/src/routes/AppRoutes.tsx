@@ -26,7 +26,7 @@ const AppRoutes = () => {
         <Route path="/forgot-reset-password/:token" element={<ForgotResetPassword />} />
         <Route path="/signUp" element={<SignUp />} />
         <Route path="/tendersearch" element={<TenderSearch />} />
-        <Route path="tender/:id" element={<TenderDetails />} />
+        <Route path="tender/:subId" element={<TenderDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/bidupdates" element={<BidStatusUpdates />} />
         <Route path="/my-bids" element={<MyBids />} />

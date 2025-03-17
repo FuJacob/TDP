@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from 'react-router-dom'
 
 interface Tender {
-  submission_id: string
+  subId: string
   title: string;
   submittedAt: string;
   status: string;
@@ -58,13 +58,13 @@ const TenderList: React.FC<TenderListProps> = ({
           </tr>
         ) : (
           visibleTenders.map((tender, index) => (
-            <tr key={index} className="border-t border-gray-300 text-center">
+            <tr key={tender.subId} className="border-t border-gray-300 text-center">
               <td className="p-2">{tender.title}</td>
               <td className="p-2">{tender.submittedAt || "N/A"}</td>
               <td className="p-2">{tender.status}</td>
               <td className="p-2">{tender.submittedAt || "N/A"}</td>
               <td className="p-2">
-              <Link to={`/tender/${tender.submission_id}`} className="text-blue-500 hover:underline">
+              <Link to={`/tender/${tender.subId}`} className="text-blue-500 hover:underline">
                 More Info
               </Link>
             </td>

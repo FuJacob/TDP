@@ -12,7 +12,7 @@ tenderRouter.get('/search', searchTendersHandler);
 tenderRouter.get('/submittedtenders', subUserTenderHandler);
 
 //Get tender by ID
-tenderRouter.get('/:id', getSubTenderByIDHandler);
+tenderRouter.get('/submittedtenders/:id', getSubTenderByIDHandler);
 
 // Update tender by ID
 tenderRouter.patch('/:id', updateSubTenderHandler);

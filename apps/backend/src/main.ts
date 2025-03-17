@@ -255,7 +255,9 @@ app.post('/filterOpenTenderNotices', async (req, res) => {
     if (error) {
       throw new Error(`Failed to fetch tender notices: ${error.message}`)
     }
-    const token = req.token;
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(' ')?.[1];
+    // const token = req.token;
     // Filter tenders using AI
     const response = await axios.post(
       'http://localhost:3000/filterTendersWithAI',

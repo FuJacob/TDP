@@ -43,7 +43,7 @@ const Dashboard: React.FC = () => {
       const token = localStorage.getItem("access_token");
 
       if (!token) {
-        setError("You must be logged in to view your bids.");
+        setError("You must be logged in to view your Tenders.");
         setLoading(false);
         return;
       }
@@ -82,21 +82,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-
-  // useEffect(() => {
-  //   fetchTenders();
-
-  //   // Listen for real-time updates
-  //   socket.on("subTenderUpdated", (data) => {
-  //     console.log("New tender update received:", data);
-
-  //     setTenders((prevTenders) => [...prevTenders, data]);
-  //   });
-
-  //   return () => {
-  //     socket.off("subTenderUpdated");
-  //   };
-  // }, []);
 
   useEffect(() => {
     fetchTenders();
@@ -223,6 +208,8 @@ const Dashboard: React.FC = () => {
     }
   }
 
+  console.log("Filtered tenders>>>>>>>",filteredTenders)
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Tenders Dashboard</h1>
@@ -317,7 +304,7 @@ const Dashboard: React.FC = () => {
             >
               <option value="">All</option>
               <option value="Open">Open</option>
-              <option value="Approved">Approved</option>
+              <option value="Approved">Accepted</option>
               <option value="Pending">Pending</option>
               <option value="Rejected">Rejected</option>
             </select>
@@ -353,6 +340,8 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+
 
       {/*Tender Table */}
       <TenderList

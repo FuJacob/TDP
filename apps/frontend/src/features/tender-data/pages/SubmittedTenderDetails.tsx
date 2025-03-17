@@ -12,7 +12,7 @@ interface Tender {
 }
 
 const TenderDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
+  const { subId } = useParams<{ subId: string }>()
   const [tender, setTender] = useState<Tender | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,13 +20,30 @@ const TenderDetails: React.FC = () => {
   useEffect(() => {
     const fetchTenderDetails = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3000/v1/user/submittedtenders/${id}`
-        )
-        const result = await response.json()
+        setLoading(true);
+        const token = localStorage.getItem("access_token");
 
-        if (result.success) {
-          setTender(result.data)
+        if (!token) {
+          setError("You must be logged in to view your bids.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(
+          `http://localhost:3000/api/v1/tenders/submittedtenders/${subId}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const result = await response.json()
+        console.log("API Response >>>>>>>>.",result);
+
+        if (result!) {
+          setTender(result.tender)
+          console.log("resrult.tender>>>>>>>",result.tender)
         } else {
           setError('Tender not found')
         }
@@ -39,11 +56,12 @@ const TenderDetails: React.FC = () => {
     }
 
     fetchTenderDetails()
-  }, [id])
+  }, [subId])
 
   if (loading) return <p>Loading...</p>
   if (error) return <p className="text-red-500">{error}</p>
   if (!tender) return <p>No details available</p>
+  console.log("tender>>>>>>>>>>",tender)
 
   return (
     <div className="p-6 max-w-lg mx-auto">

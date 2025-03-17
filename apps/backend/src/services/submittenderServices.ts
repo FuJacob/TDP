@@ -118,12 +118,15 @@ export async function searchSubTendersService(access_token:token ,userId: string
 export async function getSubTenderById(access_token:token ,userId: string, subId: string): Promise<TransformedSubTender | null> {
   const supabase = createSupabaseClient(access_token.token);
   const { data, error } = await supabase
-    .from('submitted_bids')
+    .from('submitted_tenders')
     .select('*')
     .eq('user_id', userId)
     .eq('submission_id', subId)
+    .limit(1)
     .single();
 
+
+    console.log(data);
   if (error) {
     if (error.code === 'PGRST116') {
       return null;
@@ -143,7 +146,7 @@ export async function updateSubTender(
 ): Promise<TransformedSubTender | null> {
   const supabase = createSupabaseClient(token);
   const { data, error } = await supabase
-    .from('submitted_bids')
+    .from('submitted_tenders')
     .update({
       bid_status: newStatus,
       last_updated_date: new Date().toISOString(),

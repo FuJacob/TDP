@@ -11,11 +11,20 @@ interface UpdatedBid {
   [key: string]: any; // fallback for any other fields
 }
 
+// trial
+// Interface for notifications
+interface Notification {
+  id: string;
+  message: string;
+  createdAt: string;
+}
+// trial
 const BidStatusUpdates: React.FC = () => {
   const [connected, setConnected] = useState<boolean>(false);
   const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
   const [updates, setUpdates] = useState<UpdatedBid[]>([]);
   const [waitingMessage, setWaitingMessage] = useState<string>('');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const socketRef = useRef<Socket | null>(null);
 
   // We'll wait 30 seconds before showing "Waiting for latest status update..."
@@ -74,6 +83,13 @@ const BidStatusUpdates: React.FC = () => {
       setLastUpdateTime(Date.now());
     });
 
+    // trial
+    socket.on("notification", (data: { id: string; message: string }) => {
+      console.log("New notification:", data);
+      toast.success(data.message); // Pop-up notification
+      setNotifications((prev) => [{ ...data, createdAt: new Date().toISOString() }, ...prev]);
+    });
+    // trial
     // Cleanup on unmount
     return () => {
       socket.disconnect();
@@ -90,6 +106,21 @@ const BidStatusUpdates: React.FC = () => {
         <p style={{ color: 'orange' }}>{waitingMessage}</p>
       )}
 
+{/* trial */}
+      <h3>Notifications:</h3>
+      {notifications.length === 0 ? (
+        <p>No notifications received yet.</p>
+      ) : (
+        <ul>
+          {notifications.map((notif) => (
+            <li key={notif.id}>
+              {notif.message} - <small>{new Date(notif.createdAt).toLocaleString()}</small>
+            </li>
+          ))}
+        </ul>
+      )}
+
+{/* trial */}
       <h3>Recent Updates:</h3>
       {updates.length === 0 ? (
         <p>No updates received yet.</p>

@@ -3,7 +3,18 @@ import {
   getOpenTenderNoticesFromDB,
   TenderNoticeInterface
 } from '../../api/api'
+import { placeholderTenderData } from './dummy';
 
+
+// This component will be rendered is data is ot yet available
+const PlaceholderTable = ({ data }: { data:string[] }) => {
+  return (
+    <table className='table-placeholder'> 
+    {/* TODO: Use placeholderTenderData to render the placeholder table */}
+    </table>
+  );
+};
+ 
 
 
 export function App() {
@@ -48,7 +59,9 @@ export function App() {
     <>
       {tableData && tableData.length > 0 ? (
         <TenderTable data={tableData} />
-      ) : null}
+      ) : (
+        <PlaceholderTable data={placeholderTenderData} />
+      )}
     </>
   )
 }

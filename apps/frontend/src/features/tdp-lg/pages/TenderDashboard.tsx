@@ -76,25 +76,29 @@ const TenderDashboard: React.FC = () => {
   useEffect(() => {
     fetchTenders();
   
-    const socket = io("http://localhost:3000", {
-      transports: ["polling"], // Force long polling if WebSocket fails
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 3000,
-      auth: {
-        token: token
-      }
+    const token = localStorage.getItem('access_token') || '';
+
+    // Connect via socket.io
+    const socket = io('http://localhost:3000', {
+      transports: ['websocket'],
+      query: { token },
     });
   
     socket.on("connect", () => {
       console.log("Connected to WebSocket server");
     });
   
-    socket.on("subTenderUpdated", (data) => {
+    socket.on("tenderInserted", (data) => {
+      console.log("Tender inserted:", data.subtender);
+      fetchTenders();
+    });
+    socket.on("tenderUpdated", (data) => {
       console.log("Tender updated:", data.subtender);
-      setTenders((prevTenders) =>
-        prevTenders.map((t) => (t.id === data.subtender.id ? data.subtender : t))
-      );
+      fetchTenders();
+    });
+    socket.on("tenderDeleted", (data) => {
+      console.log("Tender deleted:", data.subtender);
+      fetchTenders();
     });
   
     socket.on("connect_error", (err) => {

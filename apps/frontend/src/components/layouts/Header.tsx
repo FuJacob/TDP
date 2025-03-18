@@ -10,7 +10,8 @@
   // Navbar.tsx
   import React from 'react';
   import { useNavigate } from 'react-router-dom';
-  import { useAuth } from '../../features/tdp-lg/components/AuthContext';
+  import { useAuth } from '../../auth/components/AuthContext'
+ 
   
   const Header: React.FC = () => {
     const { auth, setAuth } = useAuth();
@@ -46,7 +47,7 @@
         <nav style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {/* New Search Tenders Link */}
           <button 
-            onClick={() => navigate('/tendersearch')} 
+            onClick={() => navigate('/lg/search-tender')} 
             style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}
           >
             Search Tenders

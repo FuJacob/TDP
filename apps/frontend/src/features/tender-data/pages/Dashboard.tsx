@@ -305,7 +305,7 @@ const Dashboard: React.FC = () => {
               <option value="">All</option>
               <option value="Open">Open</option>
               <option value="Approved">Accepted</option>
-              <option value="Pending">Pending</option>
+              <option value="Submitted">Submitted</option>
               <option value="Rejected">Rejected</option>
             </select>
             <label className="block mb-2">Start Date:</label>

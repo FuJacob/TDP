@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { User, Mail, Lock } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import logo from "../../../assets/wouessi-new-logo.png";
+import logo from "../../assets/wouessi-new-logo.png"   
+
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate(); 

@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
-import { useAuth } from "../../features/tdp-lg/components/AuthContext";
+import { useAuth } from '../../auth/components/AuthContext'
 import { Link, useNavigate } from "react-router-dom";
-import closeTenderModal from "../../features/tdp-lg/pages/TenderSearch"
+// import closeTenderModal from "../../features/tdp-lg/pages/TenderSearch";
 import logo from "../../assets/wouessi-new-logo.png";
 import defaultAvatar from "../../assets/default-avatar.jpg";
 
@@ -45,7 +45,7 @@ const Sidebar = () => {
 
   return (
     <nav className="w-64 bg-gray-800 text-white p-5 flex flex-col h-screen">
-      <img src={logo} alt="Wouessi Logo" className="w-34 h-auto p-3" onClick={() => navigate('/')} />
+      <img src={logo} alt="Wouessi Logo" className="w-34 h-auto p-3 cursor-pointer" onClick={() => navigate('/')} />
       <ul className="space-y-3">
         <li>
           <Link to="/tenderdata" className="block p-3 bg-gray-700 rounded">
@@ -69,7 +69,7 @@ const Sidebar = () => {
             <ul className="ml-4 mt-2 bg-gray-700 rounded">
               <li>
                 <Link
-                  to="/tendersearch"
+                  to="/lg/search-tender"
                   className="block p-3 hover:bg-gray-600 rounded"
                   onClick={() => setIsDropdownOpen(true)}
                 >
@@ -78,7 +78,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to="/ai-tendersearch"  // FOR FUTURE: edit to the actual path
+                  to="/lg/ai-search-tender"  // FOR FUTURE: edit to the actual path
                   className="block p-3 hover:bg-gray-600 rounded"
                   onClick={() => setIsDropdownOpen(true)}
                 >
@@ -112,7 +112,7 @@ const Sidebar = () => {
           {/* Profile Picture Button */}
             <button onClick={() => {
                 setIsModalOpen(true);
-                closeTenderModal; // had null here before
+                // closeTenderModal; // had null here before
               }} className="block mx-auto">
               <img
                 src={profilePicture || defaultAvatar} // Default avatar if no image

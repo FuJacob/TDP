@@ -2,9 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 /* You can add global styles to this file, and also import other style files */
-
+@layer base {
+  /* Your custom base styles */
+  .nav-bg-color {
+    background-color: #f1eef8 !important;
+    color: black;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .nav-bg-color:focus {
+    background-color: white !important;
+    border-radius: 15px;
+  }
+  .bg-gray-800 {
+    background-color: #f1eef8 !important;
+  }
+}
 
 /** Style the placeholder table according to Figma */
 .table-placeholder {
-
 }

@@ -7,8 +7,9 @@ const Sidebar = () => {
   const { auth } = useAuth()
 
   return (
-    <nav className="w-64 bg-gray-800 text-white p-5 space-y-4">
+    <nav className="w-64 bg-gray-800 text-white p-8 space-y-4">
       <img src={logo} alt="Wouessi Logo" className="w-32 h-auto" />
+      <div className="w-full h-0.5 bg-gradient-to-r from-gray-700 via-gray-500 to-gray-700"></div>
       <div className="flex flex-col justify-between h-[75vh]">
         <div>
           <ul className="space-y-3">

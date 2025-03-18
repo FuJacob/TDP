@@ -1,19 +1,23 @@
-import * as path from 'path'
-import express from 'express'
-import OpenAI from 'openai'
-import cors from 'cors'
-import axios from 'axios'
-import Papa from 'papaparse'
-import { createClient } from '@supabase/supabase-js'
-//import { authRouter } from './routes/auth.routes'
+// apps/backend/src/main.ts
+import * as path from 'path';
+import express from 'express';
+import OpenAI from 'openai';
+import cors from 'cors';
+import axios from 'axios';
+import Papa from 'papaparse';
+import { createClient } from '@supabase/supabase-js';
+import { createServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 import authRouter from './routes/authRoutes';
-import tenderRouter from './routes/tenderRoutes'
-import { logger } from './middleware/logger.middleware'
+import tenderRouter from './routes/tenderRoutes';
+import bidRouter from './routes/bid.routes';
+import { logger } from './middleware/logger.middleware';
 import { delay } from './middleware/delay.middleware';
 import { auth } from './middleware/auth.middleware';
+import dotenv from 'dotenv';
+import {initSupaBaseSubscription} from './utils/supabase_subscription';
 
-//console.log('Logger:', logger);
-//console.log('Auth Router:', authRouter);
+dotenv.config();
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -129,7 +133,8 @@ app.post('/getRfpAnalysis', async (req, res) => {
       ],
     })
 
-    const response = completion.choices[0].message.content
+    const response = completion.choices[0].message.content;
+
     const { error } = await supabase
       .from('rfp_analysis')
       .insert({ data: response })
@@ -137,9 +142,12 @@ app.post('/getRfpAnalysis', async (req, res) => {
     if (error) {
       console.error('Error storing RFP analysis:', error)
       return res.status(500).json({ error })
+      // return res.status(500).json({ error: 'Failed to store RFP analysis' });
     }
 
-    res.json(response || '{}')
+    res.json(response || '{}');
+    // return res.json({ analysis: response });
+
   } catch (error) {
     console.error('Error analyzing RFP:', error)
     res.status(500).json({ error: 'Failed to analyze RFP' })
@@ -247,15 +255,22 @@ app.post('/filterOpenTenderNotices', async (req, res) => {
     if (error) {
       throw new Error(`Failed to fetch tender notices: ${error.message}`)
     }
-
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(' ')?.[1];
+    // const token = req.token;
     // Filter tenders using AI
     const response = await axios.post(
       'http://localhost:3000/filterTendersWithAI',
       {
         prompt: req.body.prompt,
         data: data,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    )
+    );
 
     const filteredIDs = JSON.parse(response.data).matches
 
@@ -407,12 +422,39 @@ app.get('/getOpenTenderNoticesFromDB', async (req, res) => {
   }
 })
 
+
+
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/tenders', tenderRouter)
-// Serve static files from the 'assets' folder
-app.use('/assets', express.static(path.join(__dirname, 'assets')))
+app.use('/api/v1/bids', bidRouter)
 
-const server = app.listen(process.env.PORT, () => {
-  console.log(`Listening at http://localhost:${process.env.PORT}`)
-})
-server.on('error', console.error)
+
+
+// Serve static files from the 'assets' folder
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+// Create an HTTP server and attach Socket.IO to it
+const httpServer = createServer(app);
+const io = new SocketIOServer(httpServer, {
+  cors: { origin: '*' },
+});
+
+io.on('connection', (socket) => {
+  console.log('A client connected:', socket.id);
+});
+
+
+
+app.set('io', io); // Make io accessible in your controllers
+// SUPABASE REAL-TIME SUBSCRIPTION
+
+initSupaBaseSubscription(io);
+// Start the HTTP server (instead of app.listen)
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, () => {
+  console.log(`Listening at http://localhost:${PORT}`);
+});
+
+
+export { io, httpServer, app };
+

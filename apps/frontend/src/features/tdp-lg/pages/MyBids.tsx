@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import BidDashboard from "./BidDashboard";
-
+import BidDashboard from "../components/BidDashboard";
+import io from 'socket.io-client';
 interface Bid {
   id: string | number;
   title: string;
@@ -40,58 +40,80 @@ const MyBids: React.FC = () => {
     setSortOrder("asc");
     setFilteredBids(allBids);
   };
+  const fetchBids = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("access_token");
 
-  useEffect(() => {
-    const fetchBids = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("access_token");
-
-        if (!token) {
-          setError("You must be logged in to view your bids.");
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch("http://localhost:3000/api/v1/bids", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: Failed to fetch bids`);
-        }
-
-        // The backend returns: { bids: [...], pagination: {...} }
-        const data = await response.json();
-        console.log("Raw response data:", data);
-
-        const rawBids = data.bids || [];
-
-        // Convert raw DB columns to front-end fields
-        const mappedBids = rawBids.map((row: any) => ({
-          id: row.bid_id,
-          title: row.bid_title,
-          tenderName: row.tender_ref,
-          submissionDate: row.submission_date,
-          status: row.bid_status,
-          lastUpdated: row.last_updated_date,
-        }));
-
-        console.log("Mapped bids:", mappedBids); 
-        setAllBids(mappedBids);
-        setFilteredBids(mappedBids);
-      } catch (err) {
-        setError("Error fetching bids. Please try again.");
-      } finally {
+      if (!token) {
+        setError("You must be logged in to view your bids.");
         setLoading(false);
+        return;
       }
-    };
 
+      const response = await fetch("http://localhost:3000/api/v1/bids", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: Failed to fetch bids`);
+      }
+
+      // The backend returns: { bids: [...], pagination: {...} }
+      const data = await response.json();
+      console.log("Raw response data:", data);
+
+      const rawBids = data.bids || [];
+
+      // Convert raw DB columns to front-end fields
+      const mappedBids = rawBids.map((row: any) => ({
+        id: row.bid_id,
+        title: row.bid_title,
+        tenderName: row.tender_ref,
+        submissionDate: row.submission_date,
+        status: row.bid_status,
+        lastUpdated: row.last_updated_date,
+      }));
+
+      console.log("Mapped bids:", mappedBids); 
+      setAllBids(mappedBids);
+      setFilteredBids(mappedBids);
+    } catch (err) {
+      setError("Error fetching bids. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchBids();
+  }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    const socket = io("http://localhost:3000", {
+      transports: ["websocket"],
+      query: { token },
+    });
+
+    socket.on("bidInserted", (data) => {
+      fetchBids();
+      console.log("New bid inserted", data);
+    });
+    socket.on("bidUpdated", (data) => {
+      fetchBids();
+      console.log("New bid updated", data);
+    });
+    socket.on("bidDeleted", (data) => {
+      fetchBids();
+      console.log("Bid deleted", data);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   // Filtering State

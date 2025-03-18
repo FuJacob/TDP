@@ -1,9 +1,12 @@
 // apps/backend/src/subscriptions/initSupaBaseSubscription.ts
 import { supabase } from '../utils/supabaseClient';
 import { Server } from 'socket.io';
-
-export function initSupaBaseSubscription(io: Server) {
-  //submitted_bids subscriptions
+import { createSupabaseClient } from './createSupabaseClient';
+interface token{
+  token:string
+}
+export function initSupaBaseSubscription(acces_token: token,io: Server) {
+  const supabase = createSupabaseClient(acces_token.token);
   // INSERT
   supabase
     .channel('submitted_bids_insert')

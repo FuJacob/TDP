@@ -16,7 +16,7 @@ import { delay } from './middleware/delay.middleware';
 import { auth } from './middleware/auth.middleware';
 import dotenv from 'dotenv';
 import {initSupaBaseSubscription} from './utils/supabase_subscription';
-
+import { createSupabaseClient } from './utils/createSupabaseClient';
 dotenv.config();
 
 // Initialize Supabase client
@@ -440,15 +440,22 @@ const io = new SocketIOServer(httpServer, {
 });
 
 io.on('connection', (socket) => {
-  console.log('A client connected:', socket.id);
+  // Retrieve the token from the query
+  const token = socket.handshake.query.token as string | undefined;
+  console.log('A client connected with token:', token);
+
+  // If you want to initialize Supabase with this token
+  // you must do so within this scope (or pass it along to a helper):
+  if (token) {
+    // Or pass `token` to your subscription init function
+    initSupaBaseSubscription(token,io);
+  }
 });
 
 
 
 app.set('io', io); // Make io accessible in your controllers
 // SUPABASE REAL-TIME SUBSCRIPTION
-
-initSupaBaseSubscription(io);
 // Start the HTTP server (instead of app.listen)
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

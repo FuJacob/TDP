@@ -40,8 +40,8 @@
           borderBottom: '1px solid #ccc',
         }} className="bg-gray-900 text-white p-4 text-xl font-bold"
       >
-        <h1 style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
-          Wouessi
+        <h1 style={{ color: 'bg-gray-900' }}>
+     
         </h1>
         <nav style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {/* New Search Tenders Link */}

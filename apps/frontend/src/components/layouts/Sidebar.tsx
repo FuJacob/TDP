@@ -45,7 +45,7 @@ const Sidebar = () => {
 
   return (
     <nav className="w-64 bg-gray-800 text-white p-5 flex flex-col h-screen">
-      <img src={logo} alt="Wouessi Logo" className="w-32 h-auto" />
+      <img src={logo} alt="Wouessi Logo" className="w-34 h-auto p-3" onClick={() => navigate('/')} />
       <ul className="space-y-3">
         <li>
           <Link to="/tenderdata" className="block p-3 bg-gray-700 rounded">

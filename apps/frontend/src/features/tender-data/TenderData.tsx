@@ -8,9 +8,21 @@ import { placeholderTenderData } from './dummy';
 
 // This component will be rendered is data is ot yet available
 const PlaceholderTable = ({ data }: { data:string[] }) => {
+  const rows = 10;
+  const cols = 10;
+  
   return (
     <table className='table-placeholder'> 
     {/* TODO: Use placeholderTenderData to render the placeholder table */}
+    <tbody>
+        {Array.from({ length: rows }).map((_, rowIndex) => (
+          <tr key={rowIndex}>
+            {Array.from({ length: cols }).map((_, colIndex) => (
+              <td key={colIndex}>{data[rowIndex * cols + colIndex]}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
     </table>
   );
 };

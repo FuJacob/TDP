@@ -1,19 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import TenderList from './TenderList'
+import TenderList from '../components/TenderList'
 import { Pagination, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import io from "socket.io-client";
 
 const token = localStorage.getItem("access_token");
-
-// const socket = io("http://localhost:3000" , { transports: ["websocket"] });
-
-// socket.on("connect", () => {
-//   console.log("Connected to WebSocket server");
-// });
-
-// socket.on("connect_error", (err) => {
-//   console.error("Socket connection error:", err);
-// });
 
 interface SubTender {
   subId: string;
@@ -23,7 +13,7 @@ interface SubTender {
   updatedAt: string;
 }
 
-const Dashboard: React.FC = () => {
+const TenderDashboard: React.FC = () => {
   const [tenders, setTenders] = useState<any[]>([])
   const [filteredTenders, setFilteredTenders] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(true)
@@ -375,4 +365,4 @@ const Dashboard: React.FC = () => {
   )
 }
 
-export default Dashboard
+export default TenderDashboard

@@ -85,6 +85,25 @@ const Sidebar = () => {
                   AI Tender Search
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/lg/my_bids"  // FOR FUTURE: edit to the actual path
+                  className="block p-3 hover:bg-gray-600 rounded"
+                  onClick={() => setIsDropdownOpen(true)}
+                >
+                  My Bids
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/lg/my_tenders"  // FOR FUTURE: edit to the actual path
+                  className="block p-3 hover:bg-gray-600 rounded"
+                  onClick={() => setIsDropdownOpen(true)}
+                >
+                  My Tenders
+                </Link>
+              </li>
+              
             </ul>
           )}
         </li>
@@ -96,11 +115,6 @@ const Sidebar = () => {
         <li>
           <Link to="/bm" className="block p-3 bg-gray-700 rounded">
             Benchmarking
-          </Link>
-        </li>
-        <li>
-          <Link to="/dashboard" className="block p-3 bg-gray-700 rounded">
-            Submitted Tenders
           </Link>
         </li>
       </ul>

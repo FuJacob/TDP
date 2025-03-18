@@ -9,8 +9,8 @@ import Login from "../auth/pages/login";
 import SignUp from "../auth/pages/SignUp";
 import {SearchTender} from "../features/tdp-lg/pages/TenderSearch"
 // "../features/tdp-lg/pages/TenderSearch";
-import TenderDetails from "../features/tender-data/pages/SubmittedTenderDetails";
-import Dashboard from "../features/tender-data/pages/Dashboard";
+import TenderDetails from "../features/tdp-lg/components/SubmittedTenderDetails";
+import TenderDashboard from "../features/tdp-lg/pages/TenderDashboard";
 import BidStatusUpdates from '../features/tdp-lg/pages/BidStatusUpdates';
 import MyBids from "../features/tdp-lg/pages/MyBids";
 const AppRoutes = () => {
@@ -31,9 +31,9 @@ const AppRoutes = () => {
       <Route path="lg" element={<Navigate to="/lg/search-tender" />} />
       <Route path="lg/search-tender" element={<SearchTender />} />
         <Route path="tender/:subId" element={<TenderDetails />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="lg/my_tenders" element={<TenderDashboard />} />
         <Route path="/bidupdates" element={<BidStatusUpdates />} />
-        <Route path="/my-bids" element={<MyBids />} />
+        <Route path="lg/my_bids" element={<MyBids />} />
       <Route path="lg/ai-search-tender" element={<AiSearchTender />} />
 
       {/* Other Feature Routes */}

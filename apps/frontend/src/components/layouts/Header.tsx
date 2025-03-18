@@ -45,22 +45,6 @@
      
         </h1>
         <nav style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* New Search Tenders Link */}
-          <button 
-            onClick={() => navigate('/lg/search-tender')} 
-            style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}
-          >
-            Search Tenders
-          </button>
-
-          {/* New Search Tenders Link */}
-          <button 
-            onClick={() => navigate('/my-bids')} 
-            style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}
-          >
-            My Bids
-          </button>
-  
           {auth.isAuthenticated ? (
             <>
               <span>Welcome, {auth.user.name || auth.user.email}</span>

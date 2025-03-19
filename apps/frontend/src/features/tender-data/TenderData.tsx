@@ -4,25 +4,26 @@ import {
   TenderNoticeInterface
 } from '../../api/api'
 import { placeholderTenderData } from './dummy';
+import '../../styles/styles.css'
 
 
 // This component will be rendered is data is ot yet available
 const PlaceholderTable = ({ data }: { data:string[] }) => {
   const rows = 10;
   const cols = 10;
-  const headers = Array.from({ length: cols }).map((_, index) => `Header ${index + 1}`); // Added placeholder headers with filler text
-  
+  const headers = Array.from({ length: cols }, (_, i) => `text ${i + 1}`);
+
   return (
-    <table className='table-placeholder'>
+    <table className="table-placeholder">
       <thead>
         <tr>
           {headers.map((header) => (
             <th key={header}>{header}</th>
           ))}
         </tr>
-      </thead> 
+      </thead>
     {/* TODO: Use placeholderTenderData to render the placeholder table */}
-    <tbody>
+      <tbody>
         {Array.from({ length: rows }).map((_, rowIndex) => (
           <tr key={rowIndex}>
             {Array.from({ length: cols }).map((_, colIndex) => (
@@ -34,7 +35,7 @@ const PlaceholderTable = ({ data }: { data:string[] }) => {
     </table>
   );
 };
- 
+
 
 
 export function App() {

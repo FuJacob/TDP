@@ -22,3 +22,20 @@
 /** Style the placeholder table according to Figma */
 .table-placeholder {
 }
+
+.table-placeholder thead {
+  border: 0.93px solid rgba(85, 86, 90, 0.12); /* #55565A from figma */
+}
+
+.table-placeholder th {
+  background-color: #FCFCFC; /* colour of the background from figma */
+  padding: 10px;
+}
+
+.table-placeholder th:first-child {
+  border-top-left-radius: 7.45px;
+}
+
+.table-placeholder th:last-child {
+  border-top-right-radius: 7.45px;
+}

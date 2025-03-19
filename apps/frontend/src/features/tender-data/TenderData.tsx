@@ -26,7 +26,7 @@ const PlaceholderTable = ({ data }: { data:string[] }) => {
         {Array.from({ length: rows }).map((_, rowIndex) => (
           <tr key={rowIndex}>
             {Array.from({ length: cols }).map((_, colIndex) => (
-              <td key={colIndex}>{data[rowIndex * cols + colIndex]}</td>
+              <td key={colIndex} className="skeleton-text">{data[rowIndex * cols + colIndex]}</td>
             ))}
           </tr>
         ))}
@@ -64,7 +64,7 @@ export function App() {
           {data.map((row, index) => (
             <tr key={index}>
               {headers.map((header, cellIndex) => (
-                <td key={cellIndex}>
+                <td key={cellIndex} className="skeleton-text">
                   <div className="max-h-12 overflow-y-auto">{row[header]}</div>
                 </td>
               ))}

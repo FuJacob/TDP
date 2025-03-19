@@ -10,7 +10,7 @@ import { placeholderTenderData } from './dummy';
 const PlaceholderTable = ({ data }: { data:string[] }) => {
   const rows = 10;
   const cols = 10;
-  const headers = Array.from({ length: cols }).map((_, index) => `Header ${index + 1}`);
+  const headers = Array.from({ length: cols }).map((_, index) => `Header ${index + 1}`); // Added placeholder headers with filler text
   
   return (
     <table className='table-placeholder'>

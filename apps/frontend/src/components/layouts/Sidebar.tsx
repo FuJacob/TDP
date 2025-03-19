@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import logo from '../../assets/wouessi-new-logo.png'
 import { FaUser } from 'react-icons/fa'
 import { useAuth } from '../../auth/components/AuthContext'
+import  Icon  from "../Icon/Icon"
 
 const Sidebar = () => {
   const { auth } = useAuth()

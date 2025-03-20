@@ -20,7 +20,7 @@ const PlaceholderTable = ({ data }: { data:string[] }) => {
           {headers.map((header) => (
             <th key={header}>
               <span className="skeleton-text">{header}</span>
-              {header}</th>
+            </th>
           ))}
         </tr>
       </thead>

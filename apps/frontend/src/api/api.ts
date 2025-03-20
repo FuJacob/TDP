@@ -93,7 +93,7 @@ export const getCompletion = async () => {
  */
 export const getOpenTenderNoticesFromDB = async () => {
   const response = await axios.get(`${API_BASE_URL}/getOpenTenderNoticesFromDB`)
-  return response.data
+  return response?.data?.slice(0, 20);
 }
 
 /**

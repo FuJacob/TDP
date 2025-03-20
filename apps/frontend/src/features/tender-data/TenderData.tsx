@@ -8,7 +8,7 @@ import '../../styles/styles.css'
 
 
 // This component will be rendered is data is ot yet available
-const PlaceholderTable = ({ data }: { data:string[] }) => {
+const PlaceholderTable = ({ data }: { data: string[] }) => {
   const rows = 10;
   const cols = 10;
   const headers = Array.from({ length: cols }, (_, i) => `text ${i + 1}`);
@@ -24,7 +24,7 @@ const PlaceholderTable = ({ data }: { data:string[] }) => {
           ))}
         </tr>
       </thead>
-    {/* TODO: Use placeholderTenderData to render the placeholder table */}
+      {/* TODO: Use placeholderTenderData to render the placeholder table */}
       <tbody>
         {Array.from({ length: rows }).map((_, rowIndex) => (
           <tr key={rowIndex}>
@@ -61,7 +61,7 @@ export function App() {
         <thead>
           <tr>
             {headers.map((header) => (
-              <th key={header}>{header}</th>
+              <th key={header} style={{ width: "320px", textTransform: "capitalize" }}>{header}</th>
             ))}
           </tr>
         </thead>
@@ -69,7 +69,7 @@ export function App() {
           {data.map((row, index) => (
             <tr key={index}>
               {headers.map((header, cellIndex) => (
-                <td key={cellIndex}>
+                <td key={cellIndex} style={{minWidth:"220px",textAlign:"center"}}>
                   <div className="max-h-12 overflow-y-auto">{row[header]}</div>
                 </td>
               ))}

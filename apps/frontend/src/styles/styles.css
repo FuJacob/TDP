@@ -127,6 +127,17 @@
 
 /** Style the placeholder table according to Figma */
 .table-placeholder {
+  width: 100%!important;
+  text-align: left!important;
+}
+
+tbody tr td{
+  border-left:0.93px;
+  border-bottom: 0.93px;
+  border-right: 0.93px;
+  border-width: thin;
+  border-color: rgba(85, 86, 90, 0.12);
+  padding: 1em 0.5em;
 }
 
 .table-placeholder thead {

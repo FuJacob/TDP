@@ -108,10 +108,6 @@
   100% { background-position: -200% 0; }
 }
 
-.table-placeholder td {
-  padding: 20px;
-}
-
 @layer base {
   /* Your custom base styles */
   .nav-bg-color {
@@ -135,6 +131,11 @@
 
 .table-placeholder thead {
   border: 0.93px solid rgba(85, 86, 90, 0.12); /* #55565A from figma */
+}
+
+.table-placeholder td {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .table-placeholder th {

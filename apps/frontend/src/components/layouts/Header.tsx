@@ -42,7 +42,7 @@ const Header: React.FC = () => {
 
         {auth.isAuthenticated ? (
           <>
-            <span>Welcome, {auth.user.name || auth.user.email}</span>
+            <span style={{ paddingLeft: '1rem' }}>Welcome, {auth.user.name || auth.user.email}</span>
             <button onClick={handleLogout} style={{ padding: '0.5rem 1rem' }}>
               Logout
             </button>
@@ -52,7 +52,7 @@ const Header: React.FC = () => {
             onClick={() => navigate('/login')}
             style={{ padding: '0.5rem 1rem' }}
           >
-            Signin/Signup
+            Signin | Signup
           </button>
         )}
       </nav>

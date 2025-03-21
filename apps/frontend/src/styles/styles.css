@@ -98,14 +98,25 @@
   font-family: 'Roboto', sans-serif;
   font-weight: 100;
   color: transparent;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+  background: #E2E8F0;
+  opacity: 0.8;
+  border-radius: 4px;
+  animation: loading 1.5s infinite ease-in-out;
 }
 
 @keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
 }
 
 @layer base {

@@ -22,14 +22,13 @@ const Header: React.FC = () => {
 
   return (
     <header
-    style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '1rem',
-      borderBottom: '1px solid #ccc',
-    }} className="bg-gray-900 text-white p-4 text-xl font-bold"
-  >
+      style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        padding: '12px',
+      }} className="bg-white text-black  text-xl font-bold"
+    >
       <div className="relative bg-white border border-gray rounded-lg p-0.5 w-1/4">
         <div className="absolute inset-y-0 start-0 flex items-center ms-3 pointer-events-none">
           <svg className="w-4 h-4 text-gray-500 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">

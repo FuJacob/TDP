@@ -145,13 +145,14 @@
 }
 
 .table-placeholder td {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding: 10px 25px;
+  max-width: 300px;
 }
 
 .table-placeholder th {
   background-color: #FCFCFC; /* colour of the background from figma */
-  padding: 10px;
+  padding: 10px 25px;
+  max-width: 300px;
 }
 
 .table-placeholder th:first-child {

@@ -57,11 +57,11 @@ export function App() {
     const headers = Object.keys(data[0])
 
     return (
-      <table>
+      <table className="table-placeholder">
         <thead>
           <tr>
             {headers.map((header) => (
-              <th key={header} style={{ width: "320px", textTransform: "capitalize" }}>{header}</th>
+              <th key={header}>{header}</th>
             ))}
           </tr>
         </thead>
@@ -69,7 +69,7 @@ export function App() {
           {data.map((row, index) => (
             <tr key={index}>
               {headers.map((header, cellIndex) => (
-                <td key={cellIndex} style={{minWidth:"220px",textAlign:"center"}}>
+                <td key={cellIndex}>
                   <div className="max-h-12 overflow-y-auto">{row[header]}</div>
                 </td>
               ))}

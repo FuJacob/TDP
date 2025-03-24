@@ -98,9 +98,9 @@ export const getCompletion = async () => {
  * @returns {Promise<TenderNoticeInterface[]>} Array of tender notices
  */
 export const getOpenTenderNoticesFromDB = async () => {
-  const response = await axios.get(`${API_BASE_URL}/getOpenTenderNoticesFromDB`);
-  return response.data;
-};
+  const response = await axios.get(`${API_BASE_URL}/getOpenTenderNoticesFromDB`)
+  return response?.data?.slice(0, 20); // Temporary limit the results to ease page loading
+}
 
 /**
  * Generate leads based on form data

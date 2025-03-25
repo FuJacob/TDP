@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import {
   getOpenTenderNoticesFromDB,
   TenderNoticeInterface
-} from '../../api/api'
+} from '../../../api/api'
 import { placeholderTenderData } from './dummy';
-import '../../styles/styles.css'
+import '../../../styles/styles.css'
 
 
 // This component will be rendered is data is ot yet available

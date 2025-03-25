@@ -49,7 +49,6 @@ export const AiSearchTender: React.FC = () => {
 
   return (
     <PageLayout>
-      <SubNavMenu /> {/* Integrate sub-navigation */}
       <h1 className="text-3xl font-bold mb-4">AI-Powered Tender Search</h1>
 
       <button

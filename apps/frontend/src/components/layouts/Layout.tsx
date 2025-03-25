@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import Header from "./Header";
 
 const Layout = () => {
   return (
@@ -10,8 +9,6 @@ const Layout = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden m-8 ">
-        {/* Top Bar */}
-        <Header />
 
         {/* Page Content */}
         <main className="flex-1 bg-white overflow-auto mt-6">

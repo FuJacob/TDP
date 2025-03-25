@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchTendersAPI } from "../../../api/api";
 import "react-toastify/dist/ReactToastify.css";
-import { SubNavMenu } from '../components/SubNavMenu';
 import { PageLayout } from '../../../components/pagelayout/FeaturePageLayout';
 
 // Define interfaces
@@ -103,7 +102,6 @@ export const SearchTender: React.FC = () => {
 
   return (
     <PageLayout>
-      <SubNavMenu /> {/* Add sub-navigation */}
       <h1 className="text-3xl font-bold mb-4">Search for Tenders</h1>
 
       {/* Search Input */}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { analyzePdf, getRfpAnalysis } from '../../api/api'
+import { analyzePdf, getRfpAnalysis } from '../../../api/api'
 
 const CaMain = () => {
   const [file, setFile] = useState<File | null>(null)

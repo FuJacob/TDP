@@ -50,16 +50,16 @@ const Sidebar = () => {
       subItems: [
         { title: 'Tender Search', path: '/lg/search-tender' },
         { title: 'AI Tender Search', path: '/lg/ai-search-tender' },
-        { title: 'Tender Data', path: '/tenderdata' },
+        { title: 'Tender Data', path: 'lg/tenderdata' },
       ],
     },
     {
       title: 'Capability Assessment',
-      path: '/ca',
+      path: '/ca/camain',
     },
     {
       title: 'Benchmarking',
-      path: '/bm',
+      path: '/bm/bmmain',
     },
     {
       title: 'Tender Management',
@@ -72,7 +72,7 @@ const Sidebar = () => {
     },
     {
       title: 'Knowledge Base',
-      path: '/kb',
+      path: '/kb/kbmain',
     },
   ];
 

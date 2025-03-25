@@ -31,8 +31,10 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "6.11.2",
     "react-toastify": "^11.0.5",
+    "set-cookie-parser": "^2.7.1",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "turbo-stream": "^3.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",

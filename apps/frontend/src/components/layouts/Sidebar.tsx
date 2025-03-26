@@ -198,17 +198,57 @@ const Sidebar = () => {
             className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
             onClick={() => setIsModalOpen(false)}
           >
+            
             <div
-              className="bg-white p-5 rounded shadow-lg text-center"
+              className="bg-white p-5 rounded shadow-lg text-center text-black"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-xl font-bold mb-3">Profile Picture</h3>
+              {/* Adding profile popup fields TODO: Make the fields editable */}
+              {/* username field */}
+              <div className="flex justify-center gap-3">
+                <h3 className="text-xl font-bold mb-3">{auth.user.name}</h3>
+              </div>
+              {/* Profile Picture */}
               <img
                 src={profilePicture || defaultAvatar}
                 alt="Profile Preview"
                 className="w-32 h-32 rounded-full mx-auto border border-gray-300 object-cover"
               />
-              <div className="mt-4 space-y-2">
+              {/* Full name field */}
+              <div className="flex justify-center gap-3 mt-3">
+                <h3 className="text-xl font-bold">
+                  Full Name: <i>Filler</i>
+                </h3>
+              </div>
+              {/* Email field */}
+              <div className="flex justify-center gap-3 mt-3">
+                <h3 className="text-xl font-bold">
+                  {auth.user.email}
+                </h3>
+                <button className="px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600">
+                  Edit
+                </button>
+              </div>
+              {/* Phone Number field */}
+              <div className="flex justify-center gap-3 mt-3">
+                <h3 className="text-xl font-bold">
+                  Phone Number: <i>Filler</i>
+                </h3>
+              </div>
+              {/* Location field */}
+              <div className="flex justify-center gap-3 mt-3">
+                <p>
+                  Location: <i>Filler</i>
+                </p>
+              </div>
+              {/* Bio/About Me Field */}
+              <div className="flex justify-center gap-3 mt-3">
+                <p>
+                  Bio: <i>Filler</i>
+                </p>
+              </div>
+              {/* Buttons */}
+              <div className="mt-4 space-y-2 w-full max-w-xs">
                 <button
                   onClick={triggerFileInput}
                   className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
@@ -220,6 +260,16 @@ const Sidebar = () => {
                   className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
                 >
                   Remove Picture
+                </button>
+                <button
+                  className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600"
+                >
+                  Change Password
+                </button>
+                <button
+                  className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                >
+                  Notification Preferences
                 </button>
                 <button
                   onClick={() => setIsModalOpen(false)}

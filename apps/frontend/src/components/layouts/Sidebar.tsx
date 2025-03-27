@@ -194,213 +194,211 @@ const Sidebar = () => {
 
         {/* Profile Picture Modal */}
         {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          onClick={() => setIsModalOpen(false)}
-        >
           <div
-            className="bg-white p-6 rounded shadow-lg text-black flex flex-col"
-            style={{
-              width: '60vw',
-              height: '90vh',
-              maxWidth: '900px',
-              maxHeight: '800px',
-              overflow: 'auto'
-            }}
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+            onClick={() => setIsModalOpen(false)}
           >
-
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4 border-b pb-4">
-              <h2 className="text-2xl font-bold">Profile Settings</h2>
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Content Area */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Left Column - Profile Picture */}
-              <div className="flex flex-col items-center space-y-4">
-                <img
-                  src={profilePicture || defaultAvatar}
-                  alt="Profile Preview"
-                  className="w-40 h-40 rounded-full border-2 border-gray-300 object-cover"
-                />
-                <div className="space-y-2 w-full">
-                  <button
-                    onClick={triggerFileInput}
-                    style={{ 
-                      backgroundColor: 'rgb(55, 50, 146)',
-                      color: 'white',
-                      padding: '0.5rem 0',
-                      width: '100%',
-                      borderRadius: '0.25rem',
-                    }}
-                    className="hover:opacity-90 transition-opacity" 
-                  >
-                    Change Picture
-                  </button>
-                  <button
-                    onClick={removeProfilePicture}
-                    style={{ 
-                      backgroundColor: 'rgb(219, 94, 75)',
-                      color: 'white',
-                      padding: '0.5rem 0',
-                      width: '100%',
-                      borderRadius: '0.25rem',
-                    }}
-                    className="border border-gray-300 rounded-md font-medium hover:bg-gray-50 transition-colors"
-                  >
-                    Remove Picture
-                  </button>
-                </div>
+            <div
+              className="bg-white p-6 rounded shadow-lg text-black flex flex-col"
+              style={{
+                width: '60vw',
+                height: '90vh',
+                maxWidth: '900px',
+                maxHeight: '800px',
+                overflow: 'auto'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-4 border-b pb-4">
+                <h2 className="text-2xl font-bold">Profile Settings</h2>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
               </div>
 
-              {/* Middle Column - User Info */}
-              <div className="space-y-4">
-                <div className="space-y-1">
+              {/* Content Area */}
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Left Column - Profile Picture */}
+                <div className="flex flex-col items-center space-y-4">
+                  <img
+                    src={profilePicture || defaultAvatar}
+                    alt="Profile Preview"
+                    className="w-40 h-40 rounded-full border-2 border-gray-300 object-cover"
+                  />
+                  <div className="space-y-2 w-full">
+                    <button
+                      onClick={triggerFileInput}
+                      style={{ 
+                        backgroundColor: 'rgb(55, 50, 146)',
+                        color: 'white',
+                        padding: '0.5rem 0',
+                        width: '100%',
+                        borderRadius: '0.25rem',
+                      }}
+                      className="hover:opacity-90 transition-opacity" 
+                    >
+                      Change Picture
+                    </button>
+                    <button
+                      onClick={removeProfilePicture}
+                      style={{ 
+                        backgroundColor: 'rgb(219, 94, 75)',
+                        color: 'white',
+                        padding: '0.5rem 0',
+                        width: '100%',
+                        borderRadius: '0.25rem',
+                      }}
+                      className="border border-gray-300 rounded-md font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Remove Picture
+                    </button>
+                  </div>
+                </div>
+
+                {/* Middle Column - User Info */}
+                <div className="space-y-4">
+                  <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-700">Username</label>
                     <input
                       type="text"
                       className="w-full border rounded p-2"
                     />
                   </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                  <input
-                    type="text"
-                    defaultValue={auth.user.name}
-                    className="w-full border rounded p-2"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input
+                      type="text"
+                      defaultValue={auth.user.name}
+                      className="w-full border rounded p-2"
+                    />
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <input
-                    type="email"
-                    defaultValue={auth.user.email}
-                    className="w-full border rounded p-2"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <input
+                      type="email"
+                      defaultValue={auth.user.email}
+                      className="w-full border rounded p-2"
+                    />
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Phone</label>
-                  <input
-                    type="tel"
-                    defaultValue=""
-                    placeholder="Add phone number"
-                    className="w-full border rounded p-2"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Phone</label>
+                    <input
+                      type="tel"
+                      defaultValue=""
+                      placeholder="Add phone number"
+                      className="w-full border rounded p-2"
+                    />
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Location</label>
-                  <input
-                    type="text"
-                    defaultValue=""
-                    placeholder="City, Country"
-                    className="w-full border rounded p-2"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Location</label>
+                    <input
+                      type="text"
+                      defaultValue=""
+                      placeholder="City, Country"
+                      className="w-full border rounded p-2"
+                    />
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Bio</label>
-                  <textarea
-                    className="w-full border rounded p-2"
-                    rows={3}
-                    placeholder="Tell us about yourself..."
-                  />
-                </div>
-              </div>
-
-              {/* Right Column - Security & Notifications */}
-              <div className="space-y-6">
-                {/* Change Password Section */}
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-medium mb-3">Change Password</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Current Password</label>
-                      <input
-                        type="password"
-                        className="w-full border rounded p-2"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">New Password</label>
-                      <input
-                        type="password"
-                        className="w-full border rounded p-2"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
-                      <input
-                        type="password"
-                        className="w-full border rounded p-2"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Bio</label>
+                    <textarea
+                      className="w-full border rounded p-2"
+                      rows={3}
+                      placeholder="Tell us about yourself..."
+                    />
                   </div>
                 </div>
 
-                {/* Notification Preferences Section */}
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-medium mb-3">Notification Preferences</h3>
-                  <div className="space-y-2">
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm">Email Notifications</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm">Push Notifications</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm">SMS Notifications</span>
-                    </label>
+                {/* Right Column - Security & Notifications */}
+                <div className="space-y-6">
+                  {/* Change Password Section */}
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-medium mb-3">Change Password</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Current Password</label>
+                        <input
+                          type="password"
+                          className="w-full border rounded p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">New Password</label>
+                        <input
+                          type="password"
+                          className="w-full border rounded p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
+                        <input
+                          type="password"
+                          className="w-full border rounded p-2"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Notification Preferences Section */}
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-medium mb-3">Notification Preferences</h3>
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm">Email Notifications</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm">Push Notifications</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm">SMS Notifications</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
-
               </div>
-            </div>
 
-            {/* Bottom Action Buttons */}
-            <div className="mt-6 pt-4 border-t flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                style={{ 
-                  backgroundColor: 'rgb(55, 50, 146)',
-                  color: 'white',
-                }}
-                className="px-4 py-2 text-white rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
-              > 
-                Save Changes
-              </button>
+              {/* Bottom Action Buttons */}
+              <div className="mt-6 pt-4 border-t flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{ 
+                    backgroundColor: 'rgb(55, 50, 146)',
+                    color: 'white',
+                  }}
+                  className="px-4 py-2 text-white rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
+                > 
+                  Save Changes
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </nav>
   );

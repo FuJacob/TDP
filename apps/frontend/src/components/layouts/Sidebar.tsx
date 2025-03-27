@@ -23,7 +23,7 @@ const Sidebar = () => {
     setIsDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Handle profile picture upload with validation
+  // handle profile picture upload with validation
   const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     setUploadError(null);
@@ -31,9 +31,9 @@ const Sidebar = () => {
     if (!file) return;
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const validTypes = ['image/jpeg', 'image/png'];
     if (!validTypes.includes(file.type)) {
-      setUploadError('Only JPEG, PNG, or WebP images are allowed');
+      setUploadError('Only JPEG or PNG images are allowed');
       return;
     }
 
@@ -50,8 +50,6 @@ const Sidebar = () => {
     const reader = new FileReader();
     reader.onload = async () => {
       try {
-        // Here you would typically upload to your server
-        // await uploadToServer(file);
         setProfilePicture(reader.result as string);
       } catch (err) {
         setUploadError('Failed to upload image');

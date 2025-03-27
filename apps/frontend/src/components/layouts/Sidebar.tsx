@@ -30,6 +30,59 @@ const Sidebar = () => {
     reader.readAsDataURL(file);
   };
 
+  // Handle phone number change
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumberInput, setPhoneNumberInput] = useState("");
+  
+  const handlePhoneNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhoneNumberInput(e.target.value);
+  };
+
+  // Handle location change
+  const [location, setLocation] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+
+  const handleLocationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocationInput(e.target.value);
+  };
+
+  // Handle bio change
+  const [userBio, setUserBio] = useState("");
+  const [userBioInput, setUserBioInput] = useState("");
+
+  const handleUserBioInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setUserBioInput(e.target.value);
+  };
+
+  // Handle Full Name Change
+  const [userFname, setUserFname] = useState("");
+  const [userFnameInput, setUserFnameInput] = useState("");
+
+  const handleUserFnameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserFnameInput(e.target.value);
+  };
+
+  // Handle saved changes
+  const handleSavedChanges = () => {
+    if(userFnameInput !== userFname){
+      setUserFname(userFnameInput);
+      alert("Full name saved: " + userFnameInput);
+    }
+    if(phoneNumberInput !== phoneNumber){
+      setPhoneNumber(phoneNumberInput);
+      alert("Phone number saved: " + phoneNumberInput);
+    }
+    if(locationInput !== location){
+      setLocation(locationInput);
+      alert("Location saved: " + locationInput);
+    }
+    if(userBioInput !== userBio){
+      setUserBio(userBioInput);
+      alert("User Bio saved: " + userBioInput);
+    }
+  };
+  
+
   // Handle logout
   const handleLogout = () => {
     setAuth({ isAuthenticated: false, user: { email: '', name: '' } });
@@ -152,7 +205,7 @@ const Sidebar = () => {
                     onClick={() => setIsModalOpen(true)}
                     className="block w-full text-left p-3 hover:bg-gray-600"
                   >
-                    Profile Setting
+                    Profile Settings
                   </button>
                 </li>
                 <li>
@@ -266,6 +319,7 @@ const Sidebar = () => {
                     <label className="block text-sm font-medium text-gray-700">Username</label>
                     <input
                       type="text"
+                      defaultValue={auth.user.name}
                       className="w-full border rounded p-2"
                     />
                   </div>
@@ -273,7 +327,8 @@ const Sidebar = () => {
                   <label className="block text-sm font-medium text-gray-700">Full Name</label>
                   <input
                     type="text"
-                    defaultValue={auth.user.name}
+                    defaultValue={userFname || auth.user.name}
+                    onChange={handleUserFnameInputChange}
                     className="w-full border rounded p-2"
                   />
                 </div>
@@ -291,7 +346,8 @@ const Sidebar = () => {
                   <label className="block text-sm font-medium text-gray-700">Phone</label>
                   <input
                     type="tel"
-                    defaultValue=""
+                    defaultValue={phoneNumber}
+                    onChange={handlePhoneNumberInputChange}
                     placeholder="Add phone number"
                     className="w-full border rounded p-2"
                   />
@@ -301,7 +357,8 @@ const Sidebar = () => {
                   <label className="block text-sm font-medium text-gray-700">Location</label>
                   <input
                     type="text"
-                    defaultValue=""
+                    defaultValue={location}
+                    onChange={handleLocationInputChange}
                     placeholder="City, Country"
                     className="w-full border rounded p-2"
                   />
@@ -312,7 +369,9 @@ const Sidebar = () => {
                   <textarea
                     className="w-full border rounded p-2"
                     rows={3}
+                    defaultValue={userBio}
                     placeholder="Tell us about yourself..."
+                    onChange={handleUserBioInputChange}
                   />
                 </div>
               </div>
@@ -339,6 +398,7 @@ const Sidebar = () => {
                     </div>
                     <div>
                       <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
+                      
                       <input
                         type="password"
                         className="w-full border rounded p-2"
@@ -393,6 +453,7 @@ const Sidebar = () => {
                   backgroundColor: 'rgb(55, 50, 146)',
                   color: 'white',
                 }}
+                onClick={handleSavedChanges}
                 className="px-4 py-2 text-white rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
               > 
                 Save Changes

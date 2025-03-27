@@ -209,6 +209,7 @@ const Sidebar = () => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
+
             {/* Header */}
             <div className="flex justify-between items-center mb-4 border-b pb-4">
               <h2 className="text-2xl font-bold">Profile Settings</h2>
@@ -373,6 +374,7 @@ const Sidebar = () => {
                     </label>
                   </div>
                 </div>
+
               </div>
             </div>
 

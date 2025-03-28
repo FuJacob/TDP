@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react'
 
 interface SearchBarProps {
-  onSearch: (filters: { query: string, category: string, location: string, status: string, deadlineFrom: string, deadlineTo: string, budgetMin: string, budgetMax: string, sortBy: string }) => void
+  onSearch: (filters: {
+    query: string
+    category: string
+    location: string
+    status: string
+    deadlineFrom: string
+    deadlineTo: string
+    budgetMin: string
+    budgetMax: string
+    sortBy: string
+  }) => void
   filters: {
     query: string
     category: string
@@ -14,6 +24,7 @@ interface SearchBarProps {
     sortBy: string
   }
 }
+
 
 const SearchBar = ({ onSearch, filters }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState(filters.query) // initialize with current search term from filters

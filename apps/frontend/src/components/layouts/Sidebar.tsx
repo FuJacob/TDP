@@ -62,6 +62,30 @@ const Sidebar = () => {
     setUserFnameInput(e.target.value);
   };
 
+  // Handle Email Notification Changes
+  const [isEmailChecked, setEmailChecked] = useState(false);
+  const [emailCheckboxState, setEmailCheckboxState] = useState(false);
+
+  const handleEmailCheckboxState = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailChecked(e.target.checked);
+  };
+
+  // Handle Push Notification Changes
+  const [isPushChecked, setPushChecked] = useState(false);
+  const [pushCheckboxState, setPushCheckboxState] = useState(false);
+
+  const handlePushCheckboxState = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPushChecked(e.target.checked);
+  };
+
+  // Handle SMS Notification Changes
+  const [isSmsChecked, setSmsChecked] = useState(false);
+  const [smsCheckboxState, setSmsCheckboxState] = useState(false);
+
+  const handleSmsCheckboxState = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSmsChecked(e.target.checked);
+  };
+
   // Handle saved changes
   const handleSavedChanges = () => {
     if(userFnameInput !== userFname){
@@ -80,6 +104,35 @@ const Sidebar = () => {
       setUserBio(userBioInput);
       alert("User Bio saved: " + userBioInput);
     }
+    if(emailCheckboxState !== isEmailChecked){
+      setEmailCheckboxState(isEmailChecked);
+      alert("Email notifications set to: " + isEmailChecked);
+    }
+    if(pushCheckboxState !== isPushChecked){
+      setPushCheckboxState(isPushChecked);
+      alert("Push notifications set to: " + isPushChecked);
+    }
+    if(smsCheckboxState !== isSmsChecked){
+      setSmsCheckboxState(isSmsChecked);
+      alert("Push notifications set to: " + isSmsChecked);
+    }
+  };
+
+  // Handle Cancel changes
+  const handleCancelChanges = () => {
+    setUserFname(userFname);
+    setPhoneNumber(phoneNumber);
+    setLocation(location); 
+    setUserBio(userBio);    
+    setEmailChecked(emailCheckboxState);
+    setPushChecked(pushCheckboxState);
+    setSmsChecked(smsCheckboxState);
+
+    setUserFnameInput(userFname); 
+    setPhoneNumberInput(phoneNumber); 
+    setLocationInput(location);
+    setUserBioInput(userBio); 
+    alert("Changes have been canceled");
   };
   
 
@@ -414,6 +467,9 @@ const Sidebar = () => {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
+                        name='email'
+                        checked={isEmailChecked}
+                        onChange={handleEmailCheckboxState}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <span className="text-sm">Email Notifications</span>
@@ -421,6 +477,9 @@ const Sidebar = () => {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
+                        name='push'
+                        checked={isPushChecked}
+                        onChange={handlePushCheckboxState}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <span className="text-sm">Push Notifications</span>
@@ -428,6 +487,9 @@ const Sidebar = () => {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
+                        name='sms'
+                        checked={isSmsChecked}
+                        onChange={handleSmsCheckboxState}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <span className="text-sm">SMS Notifications</span>
@@ -442,7 +504,10 @@ const Sidebar = () => {
             <div className="mt-6 pt-4 border-t flex justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  handleCancelChanges();
+                 }}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
               >
                 Cancel

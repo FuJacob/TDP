@@ -269,23 +269,12 @@ export const SearchTender: React.FC = () => {
 
         {/* Pagination */}
         <div className="flex items-center justify-center gap-4 mt-6">
-          <button
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page === 1}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-          >
-            Previous
-          </button>
-          <span className="text-gray-600">
-            Page {pagination.page} of {pagination.totalPages || 1}
-          </span>
-          <button
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page === pagination.totalPages}
-            className="px-4 py-2 bg-black text-white rounded disabled:bg-gray-300"
-          >
-            Next
-          </button>
+          <Stack>
+            <Pagination count={pagination.totalPages}
+              page={pagination.page}
+              onChange={(event, page) => handlePageChange(page)}
+            />
+          </Stack> 
         </div>
       </div>
       {selectedTender && (

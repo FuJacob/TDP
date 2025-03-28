@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { fetchTendersAPI } from "../../../api/api";
 import "react-toastify/dist/ReactToastify.css";
 import { PageLayout } from '../../../components/pagelayout/FeaturePageLayout';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 // Define interfaces
 interface Tender {

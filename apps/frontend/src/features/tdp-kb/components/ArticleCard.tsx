@@ -34,7 +34,6 @@ export const ArticleCard: React.FC<articleProps> = (props) => {
       <p className="text-sm text-gray-600 mb-1 truncate">
         <span className="font-semibold">Subtitle:</span> {subtitle}
       </p>
-
       <p className="text-gray-700 mt-2 text-sm line-clamp-3">
         <span className="font-semibold">Description:</span> {infomation}
       </p>

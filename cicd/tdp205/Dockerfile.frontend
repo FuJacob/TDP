@@ -1,0 +1,28 @@
+# frontend dockerfile
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# copy root package.json and lock file for dependencies
+COPY package*.json ./
+COPY tsconfig.base.json ./
+COPY nx.json ./
+
+# copy the frontend app
+COPY apps/frontend ./apps/frontend
+
+# install dependencies and build
+RUN npm install
+RUN npx nx build frontend
+
+# build with nginx
+FROM nginx:alpine
+
+# copy built files to nginx's html folder
+COPY --from=builder /app/dist/apps/frontend /usr/share/nginx/html
+
+# expose default nginx port
+EXPOSE 80
+
+# start nginx server
+CMD ["nginx", "-g", "daemon off;"]

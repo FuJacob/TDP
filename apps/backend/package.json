@@ -37,7 +37,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "openai": "^4.83.0",
+    "openai": "^4.90.0",
     "papaparse": "^5.5.2"
   },
   "devDependencies": {

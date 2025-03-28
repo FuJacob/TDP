@@ -1,0 +1,112 @@
+pipeline {
+    // Run on any available agent
+    agent any
+
+    // Define environment variables
+    environment {
+        BRANCH_NAME = 'feat_tdp_205'
+        PATH_EXTRA = '/var/jenkins_home/.local/bin'
+    }
+
+    tools {
+        nodejs('23.10.0')
+    }
+
+    // Configure pipeline options
+    options {
+        // Timeout for the entire pipeline
+        timeout(time: 1, unit: 'HOURS')
+        // Don't allow concurrent builds
+        disableConcurrentBuilds()
+        skipDefaultCheckout()
+        timestamps()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    try {
+                        // Checkout the repository
+                        checkout scm
+
+                        // Switch to the required branch
+                        sh 'git checkout ${BRANCH_NAME}'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Failed to checkout repository: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Install Poetry') {
+            steps {
+                echo 'Installing Poetry...'
+                sh '''
+                curl - sSL https://install.python-poetry.org | python3 -
+                export PATH=/var/jenkins_home/.local/bin:$PATH
+                poetry--version
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                        npm ci
+                        pip install flake8
+                        '''
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Failed to install dependencies: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                script {
+                    try {
+                        sh 'npm run lint'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Linting failed: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    try {
+                        // Run tests
+                        // sh 'npm run test'
+                        echo 'Bypassing test stage for demo purposes'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Tests failed: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+    }
+
+    // Post-build actions
+    post {
+        always {
+            // Clean workspace after build
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}

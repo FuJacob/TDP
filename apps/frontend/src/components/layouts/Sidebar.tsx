@@ -531,7 +531,7 @@ const Sidebar = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Bottom Action Buttons */}
             <div className="mt-6 pt-4 border-t flex justify-end space-x-4">
               <button
@@ -557,7 +557,7 @@ const Sidebar = () => {
               </button>
             </div>
           </div>
-          </div>
+        </div>
         )}
       </div>
     </nav>

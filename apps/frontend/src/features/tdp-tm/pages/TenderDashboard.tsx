@@ -193,12 +193,13 @@ const TenderDashboard: React.FC = () => {
 
   // Handle **Click on Status Card** to Filter Tenders
   const filterByStatus = (status: string | null) => {
+    console.log("Filter Status Selected: ", status); // Debug line
     if (status === statusFilter) {
-      setStatusFilter(null)
-      setFilteredTenders([...tenders])
+      setStatusFilter(null);
+      setFilteredTenders([...tenders]); // Reset to all tenders if same status clicked
     } else {
-      setStatusFilter(status)
-      setFilteredTenders(tenders.filter((t) => t.status === status))
+      setStatusFilter(status);
+      setFilteredTenders(tenders.filter((t) => t.status === status)); // Filter by the selected status
     }
   }
 
@@ -210,7 +211,7 @@ const TenderDashboard: React.FC = () => {
       <div className="grid grid-cols-5 gap-4 mb-6">
         <div
           className={`p-4 rounded-lg text-center shadow cursor-pointer ${
-            statusFilter === null ? 'bg-gray-200' : 'bg-gray-100'
+            statusFilter === null ? 'bg-gray-300' : 'bg-gray-100'
           }`}
           onClick={() => filterByStatus(null)}
         >
@@ -220,7 +221,7 @@ const TenderDashboard: React.FC = () => {
         </div>
         <div
           className={`p-4 rounded-lg text-center shadow cursor-pointer ${
-            statusFilter === 'Open' ? 'bg-blue-200' : 'bg-blue-100'
+            statusFilter === 'Open' ? 'bg-blue-300' : 'bg-blue-100'
           }`}
           onClick={() => filterByStatus('Open')}
         >
@@ -230,15 +231,13 @@ const TenderDashboard: React.FC = () => {
         </div>
         <div
           className={`p-4 rounded-lg text-center shadow cursor-pointer ${
-            statusFilter === 'Pending' ? 'bg-yellow-200' : 'bg-yellow-100'
+            statusFilter === 'Submitted' ? 'bg-yellow-300' : 'bg-yellow-100'
           }`}
           onClick={() => filterByStatus('Submitted')}
         >
           <p className="text-lg font-semibold">Submitted</p>
-          <p className="text-3xl font-bold text-yellow-600">{pendingTenders}</p>
-          <p className="text-sm text-gray-600">
-            {getPercentage(pendingTenders)}%
-          </p>
+          <p className="text-3xl font-bold text-yellow-700">{pendingTenders}</p>
+          <p className="text-sm text-gray-600">{getPercentage(pendingTenders)}%</p>
         </div>
         <div
           className={`p-4 rounded-lg text-center shadow cursor-pointer ${
@@ -248,13 +247,11 @@ const TenderDashboard: React.FC = () => {
         >
           <p className="text-lg font-semibold">Accepted</p>
           <p className="text-3xl font-bold text-green-600">{acceptedTenders}</p>
-          <p className="text-sm text-gray-600">
-            {getPercentage(acceptedTenders)}%
-          </p>
+          <p className="text-sm text-gray-600">{getPercentage(acceptedTenders)}%</p>
         </div>
         <div
           className={`p-4 rounded-lg text-center shadow cursor-pointer ${
-            statusFilter === 'Rejected' ? 'bg-red-200' : 'bg-red-100'
+            statusFilter === 'Rejected' ? 'bg-red-300' : 'bg-red-100'
           }`}
           onClick={() => filterByStatus('Rejected')}
         >

@@ -410,16 +410,15 @@ const Sidebar = () => {
                       className="w-full border rounded p-2"
                     />
                   </div>
-                  
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                  <input
-                    type="text"
-                    defaultValue={userFname || auth.user.name}
-                    onChange={handleUserFnameInputChange}
-                    className="w-full border rounded p-2"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input
+                      type="text"
+                      defaultValue={userFname || auth.user.name}
+                      onChange={handleUserFnameInputChange}
+                      className="w-full border rounded p-2"
+                    />
+                  </div>
 
                   <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -430,39 +429,39 @@ const Sidebar = () => {
                     />
                   </div>
                   
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Phone</label>
-                  <input
-                    type="tel"
-                    defaultValue={phoneNumber}
-                    onChange={handlePhoneNumberInputChange}
-                    placeholder="Add phone number"
-                    className="w-full border rounded p-2"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Phone</label>
+                    <input
+                      type="tel"
+                      defaultValue={phoneNumber}
+                      onChange={handlePhoneNumberInputChange}
+                      placeholder="Add phone number"
+                      className="w-full border rounded p-2"
+                    />
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Location</label>
-                  <input
-                    type="text"
-                    defaultValue={location}
-                    onChange={handleLocationInputChange}
-                    placeholder="City, Country"
-                    className="w-full border rounded p-2"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Location</label>
+                    <input
+                      type="text"
+                      defaultValue={location}
+                      onChange={handleLocationInputChange}
+                      placeholder="City, Country"
+                      className="w-full border rounded p-2"
+                    />
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Bio</label>
-                  <textarea
-                    className="w-full border rounded p-2"
-                    rows={3}
-                    defaultValue={userBio}
-                    placeholder="Tell us about yourself..."
-                    onChange={handleUserBioInputChange}
-                  />
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Bio</label>
+                    <textarea
+                      className="w-full border rounded p-2"
+                      rows={3}
+                      defaultValue={userBio}
+                      placeholder="Tell us about yourself..."
+                      onChange={handleUserBioInputChange}
+                    />
+                  </div>
                 </div>
-
               {/* Right Column - Security & Notifications */}
               <div className="space-y-6">
                 {/* Change Password Section */}
@@ -492,6 +491,7 @@ const Sidebar = () => {
                       />
                     </div>
                   </div>
+                </div>
 
                 {/* Notification Preferences Section */}
                 <div className="border rounded-lg p-4">
@@ -530,6 +530,8 @@ const Sidebar = () => {
                   </div>
                 </div>
               </div>
+            </div>
+
             {/* Bottom Action Buttons */}
             <div className="mt-6 pt-4 border-t flex justify-end space-x-4">
               <button
@@ -555,6 +557,7 @@ const Sidebar = () => {
               </button>
             </div>
           </div>
+        </div>
         )}
       </div>
     </nav>

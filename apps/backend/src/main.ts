@@ -17,7 +17,7 @@ import { auth } from './middleware/auth.middleware';
 import dotenv from 'dotenv';
 import {initSupaBaseSubscription} from './utils/supabase_subscription';
 import { createSupabaseClient } from './utils/createSupabaseClient';
-import { apiLimiter, authLimiter } from './middleware/rateLimiter';
+import { apiLimiter} from './middleware/rateLimiter';
 dotenv.config();
 
 // Initialize Supabase client
@@ -78,7 +78,6 @@ const targetColumns = [
 const app = express()
 app.use(cors({ origin: '*' }));
 app.use(apiLimiter); 
-app.use('/api/v1/auth', authLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(logger);
 app.use(delay);

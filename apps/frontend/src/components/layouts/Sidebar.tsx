@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../auth/components/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../assets/wouessi-new-logo.png';
@@ -17,94 +17,153 @@ const Sidebar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
+  // Add spinner styles to document head
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .loader {
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #3498db;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+    `;
+    document.head.appendChild(style);
+  
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  // Fetch profile data when modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      fetchProfileData();
+    }
+  }, [isModalOpen]);
+
+  const fetchProfileData = async () => {
+    setIsFetching(true);
+    try {
+      // Simulate API call to fetch profile data
+      // Replace with actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Set initial values for form fields
+      setUserFname(auth.user.name || '');
+      setUserFnameInput(auth.user.name || '');
+      setPhoneNumber('');
+      setPhoneNumberInput('');
+      setLocation('');
+      setLocationInput('');
+      setUserBio('');
+      setUserBioInput('');
+      setEmailChecked(false);
+      setEmailCheckboxState(false);
+      setPushChecked(false);
+      setPushCheckboxState(false);
+      setSmsChecked(false);
+      setSmsCheckboxState(false);
+    } catch (error) {
+      console.error('Failed to fetch profile data:', error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   // Handle dropdown toggle
   const toggleDropdown = (key: string) => {
     setIsDropdownOpen((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-//Password
-const [currentPassword, setCurrentPassword] = useState('');
-const [newPassword, setNewPassword] = useState('');
-const [confirmPassword, setConfirmPassword] = useState('');
-const [errorMessage, setErrorMessage] = useState('');
-const [successMessage, setSuccessMessage] = useState('');
+  // Password state and handlers
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-const validatePassword = (password: string) => {
-  // Password validation regex for at least 8 characters, 1 uppercase, 1 special char, 1 number
-  const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
-  return passRegex.test(password);
-};
+  const validatePassword = (password: string) => {
+    const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+    return passRegex.test(password);
+  };
 
-const handlePasswordChange = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
 
-  // Reset error and success messages
-  setErrorMessage('');
-  setSuccessMessage('');
-
-  if (!newPassword || !confirmPassword || !currentPassword) {
-    setErrorMessage('All fields are required.');
-    return;
-  }
-
-  if (newPassword !== confirmPassword) {
-    setErrorMessage('New password and confirmation do not match.');
-    return;
-  }
-
-  if (!validatePassword(newPassword)) {
-    setErrorMessage(
-      'Password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.'
-    );
-    return;
-  }
-
-
-  try {
-    const response = await fetch("http://localhost:3000/api/v1/auth/change-password", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-      },
-      body: JSON.stringify({ currentPassword, newPassword, confirmNewPassword: confirmPassword }),
-    });
-  
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.error || "An unknown error occurred.");
+    if (!newPassword || !confirmPassword || !currentPassword) {
+      setErrorMessage('All fields are required.');
+      return;
     }
-  
+
+    if (newPassword !== confirmPassword) {
+      setErrorMessage('New password and confirmation do not match.');
+      return;
+    }
+
+    if (!validatePassword(newPassword)) {
+      setErrorMessage(
+        'Password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.'
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/v1/auth/change-password", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword, confirmNewPassword: confirmPassword }),
+      });
     
-    setSuccessMessage('Password changed successfully!');
-  } catch (error) {
-    console.error("Error Details:", error);  // More detailed logging
-    if (error instanceof Error) {
-      setErrorMessage(error.message || 'An unknown error occurred.');
-    } else {
-      setErrorMessage('An error occurred while changing the password.');
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "An unknown error occurred.");
+      }
+      
+      setSuccessMessage('Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      console.error("Error Details:", error);
+      if (error instanceof Error) {
+        setErrorMessage(error.message || 'An unknown error occurred.');
+      } else {
+        setErrorMessage('An error occurred while changing the password.');
+      }
     }
-  }
-  
+  };
 
-};
-
-  // handle profile picture upload with validation
+  // Handle profile picture upload with validation
   const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     setUploadError(null);
 
     if (!file) return;
 
-    // Validate file type
     const validTypes = ['image/jpeg', 'image/png'];
     if (!validTypes.includes(file.type)) {
       setUploadError('Only JPEG or PNG images are allowed');
       return;
     }
 
-    // Validate file size (2MB max)
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
       setUploadError('Image must be smaller than 2MB');
@@ -113,7 +172,6 @@ const handlePasswordChange = async (e: React.FormEvent) => {
 
     setIsUploading(true);
 
-    // Process valid image
     const reader = new FileReader();
     reader.onload = async () => {
       try {
@@ -131,111 +189,100 @@ const handlePasswordChange = async (e: React.FormEvent) => {
     reader.readAsDataURL(file);
   };
 
-  // Handle phone number change
+  // Form state
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
-  
+  const [location, setLocation] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+  const [userBio, setUserBio] = useState("");
+  const [userBioInput, setUserBioInput] = useState("");
+  const [userFname, setUserFname] = useState("");
+  const [userFnameInput, setUserFnameInput] = useState("");
+  const [isEmailChecked, setEmailChecked] = useState(false);
+  const [emailCheckboxState, setEmailCheckboxState] = useState(false);
+  const [isPushChecked, setPushChecked] = useState(false);
+  const [pushCheckboxState, setPushCheckboxState] = useState(false);
+  const [isSmsChecked, setSmsChecked] = useState(false);
+  const [smsCheckboxState, setSmsCheckboxState] = useState(false);
+
+  // Input handlers
   const handlePhoneNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhoneNumberInput(e.target.value);
   };
-
-  // Handle location change
-  const [location, setLocation] = useState("");
-  const [locationInput, setLocationInput] = useState("");
 
   const handleLocationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocationInput(e.target.value);
   };
 
-  // Handle bio change
-  const [userBio, setUserBio] = useState("");
-  const [userBioInput, setUserBioInput] = useState("");
-
   const handleUserBioInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setUserBioInput(e.target.value);
   };
-
-  // Handle Full Name Change
-  const [userFname, setUserFname] = useState("");
-  const [userFnameInput, setUserFnameInput] = useState("");
 
   const handleUserFnameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserFnameInput(e.target.value);
   };
 
-  // Handle Email Notification Changes
-  const [isEmailChecked, setEmailChecked] = useState(false);
-  const [emailCheckboxState, setEmailCheckboxState] = useState(false);
-
   const handleEmailCheckboxState = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailChecked(e.target.checked);
   };
 
-  // Handle Push Notification Changes
-  const [isPushChecked, setPushChecked] = useState(false);
-  const [pushCheckboxState, setPushCheckboxState] = useState(false);
-
   const handlePushCheckboxState = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPushChecked(e.target.checked);
   };
-
-  // Handle SMS Notification Changes
-  const [isSmsChecked, setSmsChecked] = useState(false);
-  const [smsCheckboxState, setSmsCheckboxState] = useState(false);
 
   const handleSmsCheckboxState = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSmsChecked(e.target.checked);
   };
 
   // Handle saved changes
-  const handleSavedChanges = () => {
-    if(userFnameInput !== userFname){
-      setUserFname(userFnameInput);
-      alert("Full name saved: " + userFnameInput);
-    }
-    if(phoneNumberInput !== phoneNumber){
-      setPhoneNumber(phoneNumberInput);
-      alert("Phone number saved: " + phoneNumberInput);
-    }
-    if(locationInput !== location){
-      setLocation(locationInput);
-      alert("Location saved: " + locationInput);
-    }
-    if(userBioInput !== userBio){
-      setUserBio(userBioInput);
-      alert("User Bio saved: " + userBioInput);
-    }
-    if(emailCheckboxState !== isEmailChecked){
-      setEmailCheckboxState(isEmailChecked);
-      alert("Email notifications set to: " + isEmailChecked);
-    }
-    if(pushCheckboxState !== isPushChecked){
-      setPushCheckboxState(isPushChecked);
-      alert("Push notifications set to: " + isPushChecked);
-    }
-    if(smsCheckboxState !== isSmsChecked){
-      setSmsCheckboxState(isSmsChecked);
-      alert("Push notifications set to: " + isSmsChecked);
+  const handleSavedChanges = async () => {
+    setIsSaving(true);
+    try {
+      // Simulate API call to save changes
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Update state with new values
+      if (userFnameInput !== userFname) {
+        setUserFname(userFnameInput);
+      }
+      if (phoneNumberInput !== phoneNumber) {
+        setPhoneNumber(phoneNumberInput);
+      }
+      if (locationInput !== location) {
+        setLocation(locationInput);
+      }
+      if (userBioInput !== userBio) {
+        setUserBio(userBioInput);
+      }
+      if (emailCheckboxState !== isEmailChecked) {
+        setEmailCheckboxState(isEmailChecked);
+      }
+      if (pushCheckboxState !== isPushChecked) {
+        setPushCheckboxState(isPushChecked);
+      }
+      if (smsCheckboxState !== isSmsChecked) {
+        setSmsCheckboxState(isSmsChecked);
+      }
+
+      alert("All changes saved successfully!");
+    } catch (error) {
+      console.error("Failed to save changes:", error);
+      alert("Failed to save changes. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  // Handle Cancel changes
+  // Handle cancel changes
   const handleCancelChanges = () => {
-    setUserFname(userFname);
-    setPhoneNumber(phoneNumber);
-    setLocation(location); 
-    setUserBio(userBio);    
+    setUserFnameInput(userFname);
+    setPhoneNumberInput(phoneNumber);
+    setLocationInput(location);
+    setUserBioInput(userBio);
     setEmailChecked(emailCheckboxState);
     setPushChecked(pushCheckboxState);
     setSmsChecked(smsCheckboxState);
-
-    setUserFnameInput(userFname); 
-    setPhoneNumberInput(phoneNumber); 
-    setLocationInput(location);
-    setUserBioInput(userBio); 
-    alert("Changes have been canceled");
   };
-  
 
   // Handle logout
   const handleLogout = () => {
@@ -429,221 +476,242 @@ const handlePasswordChange = async (e: React.FormEvent) => {
               </div>
 
               {/* Content Area */}
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Left Column - Profile Picture */}
-                <div className="flex flex-col items-center space-y-4">
-                  <img
-                    src={profilePicture || defaultAvatar}
-                    alt="Profile Preview"
-                    className="w-40 h-40 rounded-full border-2 border-gray-300 object-cover"
-                  />
-                  <div className="space-y-2 w-full">
-                    <button
-                      onClick={triggerFileInput}
-                      style={{ 
-                        backgroundColor: 'rgb(55, 50, 146)',
-                        color: 'white',
-                      }}
-                      className="w-full py-2 rounded hover:opacity-90 transition-opacity disabled:opacity-50"
-                      disabled={isUploading}
-                    >
-                      {isUploading ? 'Uploading...' : 'Change Picture'}
-                    </button>
-                    
-                    {uploadError && (
-                      <p className="text-sm text-red-600">{uploadError}</p>
-                    )}
-
-                    <button
-                      onClick={removeProfilePicture}
-                      style={{ 
-                        backgroundColor: 'rgb(219, 94, 75)',
-                        color: 'white',
-                      }}
-                      className="w-full py-2 rounded hover:opacity-90 transition-opacity mt-2"
-                    >
-                      Remove Picture
-                    </button>
-                  </div>
+              {isFetching ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="loader"></div>
+                  <span className="ml-2">Loading profile...</span>
                 </div>
-
-                {/* Middle Column - User Info */}
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">Username</label>
-                    <input
-                      type="text"
-                      defaultValue={auth.user.name}
-                      className="w-full border rounded p-2"
+              ) : (
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Left Column - Profile Picture */}
+                  <div className="flex flex-col items-center space-y-4">
+                    <img
+                      src={profilePicture || defaultAvatar}
+                      alt="Profile Preview"
+                      className="w-40 h-40 rounded-full border-2 border-gray-300 object-cover"
                     />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                    <input
-                      type="text"
-                      defaultValue={userFname || auth.user.name}
-                      onChange={handleUserFnameInputChange}
-                      className="w-full border rounded p-2"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                      type="email"
-                      defaultValue={auth.user.email}
-                      className="w-full border rounded p-2"
-                    />
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">Phone</label>
-                    <input
-                      type="tel"
-                      defaultValue={phoneNumber}
-                      onChange={handlePhoneNumberInputChange}
-                      placeholder="Add phone number"
-                      className="w-full border rounded p-2"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">Location</label>
-                    <input
-                      type="text"
-                      defaultValue={location}
-                      onChange={handleLocationInputChange}
-                      placeholder="City, Country"
-                      className="w-full border rounded p-2"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">Bio</label>
-                    <textarea
-                      className="w-full border rounded p-2"
-                      rows={3}
-                      defaultValue={userBio}
-                      placeholder="Tell us about yourself..."
-                      onChange={handleUserBioInputChange}
-                    />
-                  </div>
-                </div>
-              {/* Right Column - Security & Notifications */}
-              <div className="space-y-6">
-                {/* Change Password Section */}
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-medium mb-3">Change Password</h3>
-                  <form onSubmit={handlePasswordChange}>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Current Password</label>
-                      <input
-                        type="password"
-                        value={currentPassword}
-                        className="w-full border rounded p-2"
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">New Password</label>
-                      <input
-                        type="password"
-                        value={newPassword}
-                        className="w-full border rounded p-2"
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
+                    <div className="space-y-2 w-full">
+                      <button
+                        onClick={triggerFileInput}
+                        style={{ 
+                          backgroundColor: 'rgb(55, 50, 146)',
+                          color: 'white',
+                        }}
+                        className="w-full py-2 rounded hover:opacity-90 transition-opacity disabled:opacity-50"
+                        disabled={isUploading}
+                      >
+                        {isUploading ? 'Uploading...' : 'Change Picture'}
+                      </button>
                       
+                      {uploadError && (
+                        <p className="text-sm text-red-600">{uploadError}</p>
+                      )}
+
+                      <button
+                        onClick={removeProfilePicture}
+                        style={{ 
+                          backgroundColor: 'rgb(219, 94, 75)',
+                          color: 'white',
+                        }}
+                        className="w-full py-2 rounded hover:opacity-90 transition-opacity mt-2"
+                      >
+                        Remove Picture
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Middle Column - User Info */}
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">Username</label>
                       <input
-                        type="password"
-                        value={confirmPassword}
+                        type="text"
+                        defaultValue={auth.user.name}
                         className="w-full border rounded p-2"
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
+                        disabled
                       />
                     </div>
-                    {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
-                    {successMessage && <div style={{ color: 'green' }}>{successMessage}</div>}
-                    <button type="submit"
-                    style={{
-                      backgroundColor: 'rgb(55, 50, 146)',
-                      color: 'white',
-                    }}
-                    className="px-4 py-2 text-white rounded-md text-sm font-medium hover:opacity-90 transition-opacity">Change Password</button>
-                  </div>
-                  </form>
-                </div>
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                      <input
+                        type="text"
+                        value={userFnameInput}
+                        onChange={handleUserFnameInputChange}
+                        className="w-full border rounded p-2"
+                      />
+                    </div>
 
-                {/* Notification Preferences Section */}
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-medium mb-3">Notification Preferences</h3>
-                  <div className="space-y-2">
-                    <label className="flex items-center space-x-2">
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">Email</label>
                       <input
-                        type="checkbox"
-                        name='email'
-                        checked={isEmailChecked}
-                        onChange={handleEmailCheckboxState}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        type="email"
+                        defaultValue={auth.user.email}
+                        className="w-full border rounded p-2"
+                        disabled
                       />
-                      <span className="text-sm">Email Notifications</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">Phone</label>
                       <input
-                        type="checkbox"
-                        name='push'
-                        checked={isPushChecked}
-                        onChange={handlePushCheckboxState}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        type="tel"
+                        value={phoneNumberInput}
+                        onChange={handlePhoneNumberInputChange}
+                        placeholder="Add phone number"
+                        className="w-full border rounded p-2"
                       />
-                      <span className="text-sm">Push Notifications</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">Location</label>
                       <input
-                        type="checkbox"
-                        name='sms'
-                        checked={isSmsChecked}
-                        onChange={handleSmsCheckboxState}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        type="text"
+                        value={locationInput}
+                        onChange={handleLocationInputChange}
+                        placeholder="City, Country"
+                        className="w-full border rounded p-2"
                       />
-                      <span className="text-sm">SMS Notifications</span>
-                    </label>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">Bio</label>
+                      <textarea
+                        className="w-full border rounded p-2"
+                        rows={3}
+                        value={userBioInput}
+                        placeholder="Tell us about yourself..."
+                        onChange={handleUserBioInputChange}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right Column - Security & Notifications */}
+                  <div className="space-y-6">
+                    {/* Change Password Section */}
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium mb-3">Change Password</h3>
+                      <form onSubmit={handlePasswordChange}>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm text-gray-600 mb-1">Current Password</label>
+                            <input
+                              type="password"
+                              value={currentPassword}
+                              className="w-full border rounded p-2"
+                              onChange={(e) => setCurrentPassword(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-gray-600 mb-1">New Password</label>
+                            <input
+                              type="password"
+                              value={newPassword}
+                              className="w-full border rounded p-2"
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
+                            <input
+                              type="password"
+                              value={confirmPassword}
+                              className="w-full border rounded p-2"
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              required
+                            />
+                          </div>
+                          {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+                          {successMessage && <div style={{ color: 'green' }}>{successMessage}</div>}
+                          <button
+                            type="submit"
+                            style={{
+                              backgroundColor: 'rgb(55, 50, 146)',
+                              color: 'white',
+                            }}
+                            className="px-4 py-2 text-white rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
+                          >
+                            Change Password
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+
+                    {/* Notification Preferences Section */}
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium mb-3">Notification Preferences</h3>
+                      <div className="space-y-2">
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            name='email'
+                            checked={isEmailChecked}
+                            onChange={handleEmailCheckboxState}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <span className="text-sm">Email Notifications</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            name='push'
+                            checked={isPushChecked}
+                            onChange={handlePushCheckboxState}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <span className="text-sm">Push Notifications</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            name='sms'
+                            checked={isSmsChecked}
+                            onChange={handleSmsCheckboxState}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <span className="text-sm">SMS Notifications</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )}
+
+              {/* Bottom Action Buttons */}
+              <div className="mt-6 pt-4 border-t flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    handleCancelChanges();
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  style={{ 
+                    backgroundColor: 'rgb(55, 50, 146)',
+                    color: 'white',
+                  }}
+                  onClick={handleSavedChanges}
+                  disabled={isSaving}
+                  className="px-4 py-2 text-white rounded-md text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center"
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="loader"></div>
+                      <span className="ml-2">Saving changes...</span>
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
               </div>
             </div>
-
-            {/* Bottom Action Buttons */}
-            <div className="mt-6 pt-4 border-t flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsModalOpen(false);
-                  handleCancelChanges();
-                 }}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                style={{ 
-                  backgroundColor: 'rgb(55, 50, 146)',
-                  color: 'white',
-                }}
-                onClick={handleSavedChanges}
-                className="px-4 py-2 text-white rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
-              > 
-                Save Changes
-              </button>
-            </div>
           </div>
-        </div>
         )}
       </div>
     </nav>

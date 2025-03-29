@@ -28,7 +28,7 @@ const Login: React.FC = () => {
         setAuth({
           isAuthenticated: true,
           user: {
-            email: "",
+            email: res.data.user.email||"",
             name: res.data.user.name||"", 
           },
         });

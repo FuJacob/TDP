@@ -1,0 +1,105 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'feat_tdp_207', url: 'https://github.com/anshjindal/tdp-tender-discovery-platform.git'
+            }
+        }
+
+        stage('Install Dependencies - Backend') {
+            steps {
+                sh """
+                    cd backend
+                    npm install
+                """
+            }
+        }
+
+        stage('Lint - Backend') {
+            steps {
+                sh """
+                    cd backend
+                    npm run lint
+                """
+            }
+        }
+
+        stage('Test - Backend') {
+            steps {
+                sh """
+                    cd backend
+                    npm test
+                """
+            }
+        }
+
+        stage('Install Dependencies - Frontend') {
+            steps {
+                sh """
+                    cd frontend
+                    npm install
+                """
+            }
+        }
+
+        stage('Lint - Frontend') {
+            steps {
+                sh """
+                    cd frontend
+                    npm run lint
+                """
+            }
+        }
+
+        stage('Test - Frontend') {
+            steps {
+                sh """
+                    cd frontend
+                    npm test
+                """
+            }
+        }
+
+        stage('Build & Push Docker Images') {
+            steps {
+                script {
+                    def commitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+
+                    docker.withRegistry('https://docker.io', 'docker-hub-credentials') {
+                        // Build & Push Backend
+                        sh """
+                            docker build -t docker.io/tdp207/tdp-backend:${commitHash} -f cicd/TDP207/Dockerfile.backend .
+                            docker push docker.io/tdp207/tdp-backend:${commitHash}
+
+                            docker tag docker.io/tdp207/tdp-backend:${commitHash} docker.io/tdp207/tdp-backend:latest
+                            docker push docker.io/tdp207/tdp-backend:latest
+                        """
+
+                        // Build & Push Frontend
+                        sh """
+                            docker build -t docker.io/tdp207/tdp-frontend:${commitHash} -f cicd/TDP207/Dockerfile.frontend .
+                            docker push docker.io/tdp207/tdp-frontend:${commitHash}
+
+                            docker tag docker.io/tdp207/tdp-frontend:${commitHash} docker.io/tdp207/tdp-frontend:latest
+                            docker push docker.io/tdp207/tdp-frontend:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to k3s') {
+            steps {
+                sh """
+                    kubectl apply -f cicd/TDP207/k8s/backend-deployment.yaml --namespace tdp207
+                    kubectl apply -f cicd/TDP207/k8s/backend-service.yaml --namespace tdp207
+                    kubectl apply -f cicd/TDP207/k8s/frontend-deployment.yaml --namespace tdp207
+                    kubectl apply -f cicd/TDP207/k8s/frontend-service.yaml --namespace tdp207
+                    kubectl apply -f cicd/TDP207/k8s/ingress.yaml --namespace tdp207
+                """
+            }
+        }
+    }
+}

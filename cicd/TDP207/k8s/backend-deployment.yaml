@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdp-backend-deployment
+  namespace: tdp207
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tdp-backend
+  template:
+    metadata:
+      labels:
+        app: tdp-backend
+    spec:
+      containers:
+      - name: tdp-backend
+        image: docker.io/tdp207/tdp-backend:latest
+        ports:
+        - containerPort: 3000

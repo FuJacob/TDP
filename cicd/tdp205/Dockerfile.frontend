@@ -1,0 +1,22 @@
+# frontend dockerfile
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm ci
+
+RUN npx nx build frontend --prod
+
+# build with nginx
+FROM nginx:alpine
+
+# copy built files to nginx's html folder
+COPY --from=builder /app/dist/apps/frontend /usr/share/nginx/html
+
+# expose default nginx port
+EXPOSE 80
+
+# start nginx server
+CMD ["nginx", "-g", "daemon off;"]

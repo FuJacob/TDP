@@ -19,6 +19,7 @@ const Sidebar = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  
 
   // Add spinner styles to document head
   useEffect(() => {
@@ -94,6 +95,14 @@ const Sidebar = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  // Input Validation state and handlers
+  const [errors, setErrors] = useState<{
+    fullName?: string;
+    phone?: string;
+    location?: string;
+    bio?: string;
+  }>({});
+  
 
   const validatePassword = (password: string) => {
     const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
@@ -236,6 +245,7 @@ const Sidebar = () => {
 
   // Handle saved changes
   const handleSavedChanges = async () => {
+    if (!validateForm()) return; 
     setIsSaving(true);
     try {
       // Simulate API call to save changes
@@ -289,6 +299,31 @@ const Sidebar = () => {
     setAuth({ isAuthenticated: false, user: { email: '', name: '' } });
     localStorage.removeItem('access_token');
     navigate('/');
+  };
+
+  // Validate user input fields, required
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+    let isValid = true;
+  
+    if (!userFnameInput.trim()) {
+      newErrors.fullName = "Required";
+      isValid = false;
+    }
+    if (!phoneNumberInput.trim()) {
+      newErrors.phone = "Required";
+      isValid = false;
+    } else if (!/^\d{3}-\d{3}-\d{4}$/.test(phoneNumberInput)) {
+      newErrors.phone = "Use XXX-XXX-XXXX format";
+      isValid = false;
+    }
+    if (!locationInput.trim()) {
+      newErrors.location = "Required";
+      isValid = false;
+    }
+  
+    setErrors(newErrors);
+    return isValid;
   };
 
   // Profile picture actions
@@ -552,14 +587,31 @@ const Sidebar = () => {
                     </div>
                     
                     <div className="space-y-1">
-                      <label className="block text-sm font-medium text-gray-700">Phone</label>
-                      <input
-                        type="tel"
-                        value={phoneNumberInput}
-                        onChange={handlePhoneNumberInputChange}
-                        placeholder="Add phone number"
-                        className="w-full border rounded p-2"
-                      />
+                    <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input
+                      type="tel"
+                      value={phoneNumberInput}
+                      onChange={(e) => {
+                        // Auto-format as XXX-XXX-XXXX
+                        const value = e.target.value.replace(/\D/g, '');
+                        let formattedValue = '';
+                        
+                        if (value.length > 0) formattedValue = value.substring(0, 3);
+                        if (value.length > 3) formattedValue += '-' + value.substring(3, 6);
+                        if (value.length > 6) formattedValue += '-' + value.substring(6, 10);
+                        
+                        setPhoneNumberInput(formattedValue);
+                        if (errors.phone) setErrors({...errors, phone: undefined});
+                      }}
+                      className={`w-full border rounded p-2 ${
+                        errors.phone ? "border-red-500" : ""
+                      }`}
+                      placeholder="XXX-XXX-XXXX"
+                      maxLength={12} // 3-3-4 Format for Phone Number
+                    />
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                    )}
                     </div>
 
                     <div className="space-y-1">
@@ -568,9 +620,14 @@ const Sidebar = () => {
                         type="text"
                         value={locationInput}
                         onChange={handleLocationInputChange}
-                        placeholder="City, Country"
-                        className="w-full border rounded p-2"
-                      />
+                        className={`w-full border rounded p-2 ${
+                          errors.location ? "border-red-500" : ""
+                        }`}
+                        placeholder="Country"
+                        />
+                        {errors.location && (
+                          <p className="text-red-500 text-xs mt-1">{errors.location}</p>
+                        )}
                     </div>
 
                     <div className="space-y-1">

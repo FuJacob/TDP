@@ -19,7 +19,6 @@ const Sidebar = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  
 
   // Add spinner styles to document head
   useEffect(() => {
@@ -42,7 +41,7 @@ const Sidebar = () => {
       }
     `;
     document.head.appendChild(style);
-  
+
     return () => {
       document.head.removeChild(style);
     };
@@ -61,22 +60,22 @@ const Sidebar = () => {
       // Simulate API call to fetch profile data
       // Replace with actual API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Set initial values for form fields
       setUserFname(auth.user.name || '');
       setUserFnameInput(auth.user.name || '');
-      setPhoneNumber('');
-      setPhoneNumberInput('');
-      setLocation('');
-      setLocationInput('');
-      setUserBio('');
-      setUserBioInput('');
-      setEmailChecked(false);
-      setEmailCheckboxState(false);
-      setPushChecked(false);
-      setPushCheckboxState(false);
-      setSmsChecked(false);
-      setSmsCheckboxState(false);
+      setPhoneNumber(localStorage.getItem('phoneNumber') || '');
+      setPhoneNumberInput(localStorage.getItem('phoneNumber') || '');
+      setLocation(localStorage.getItem('location') || '');
+      setLocationInput(localStorage.getItem('location') || '');
+      setUserBio(localStorage.getItem('userBio') || '');
+      setUserBioInput(localStorage.getItem('userBio') || '');
+      setEmailChecked(localStorage.getItem('emailChecked') === 'true');
+      setEmailCheckboxState(localStorage.getItem('emailChecked') === 'true');
+      setPushChecked(localStorage.getItem('pushChecked') === 'true');
+      setPushCheckboxState(localStorage.getItem('pushChecked') === 'true');
+      setSmsChecked(localStorage.getItem('smsChecked') === 'true');
+      setSmsCheckboxState(localStorage.getItem('smsChecked') === 'true');
     } catch (error) {
       console.error('Failed to fetch profile data:', error);
     } finally {
@@ -102,7 +101,6 @@ const Sidebar = () => {
     location?: string;
     bio?: string;
   }>({});
-  
 
   const validatePassword = (password: string) => {
     const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
@@ -140,12 +138,12 @@ const Sidebar = () => {
         },
         body: JSON.stringify({ currentPassword, newPassword, confirmNewPassword: confirmPassword }),
       });
-    
+
       const result = await response.json();
       if (!response.ok) {
         throw new Error(result.error || "An unknown error occurred.");
       }
-      
+
       setSuccessMessage('Password changed successfully!');
       setCurrentPassword('');
       setNewPassword('');
@@ -245,36 +243,43 @@ const Sidebar = () => {
 
   // Handle saved changes
   const handleSavedChanges = async () => {
-    if (!validateForm()) return; 
+    if (!validateForm()) return;
     setIsSaving(true);
     try {
       // Simulate API call to save changes
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Update state with new values
       if (userFnameInput !== userFname) {
         setUserFname(userFnameInput);
       }
       if (phoneNumberInput !== phoneNumber) {
         setPhoneNumber(phoneNumberInput);
+        localStorage.setItem('phoneNumber', phoneNumberInput);
       }
       if (locationInput !== location) {
         setLocation(locationInput);
+        localStorage.setItem('location', locationInput);
       }
       if (userBioInput !== userBio) {
         setUserBio(userBioInput);
+        localStorage.setItem('userBio', userBioInput);
       }
       if (emailCheckboxState !== isEmailChecked) {
         setEmailCheckboxState(isEmailChecked);
+        localStorage.setItem('emailChecked', String(isEmailChecked));
       }
       if (pushCheckboxState !== isPushChecked) {
         setPushCheckboxState(isPushChecked);
+        localStorage.setItem('pushChecked', String(isPushChecked));
       }
       if (smsCheckboxState !== isSmsChecked) {
         setSmsCheckboxState(isSmsChecked);
+        localStorage.setItem('smsChecked', String(isSmsChecked));
       }
 
       alert("All changes saved successfully!");
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to save changes:", error);
       alert("Failed to save changes. Please try again.");
@@ -305,7 +310,7 @@ const Sidebar = () => {
   const validateForm = () => {
     const newErrors: typeof errors = {};
     let isValid = true;
-  
+
     if (!userFnameInput.trim()) {
       newErrors.fullName = "Required";
       isValid = false;
@@ -321,7 +326,7 @@ const Sidebar = () => {
       newErrors.location = "Required";
       isValid = false;
     }
-  
+
     setErrors(newErrors);
     return isValid;
   };
@@ -384,7 +389,7 @@ const Sidebar = () => {
               {module.subItems ? (
                 <>
                   <button
-                    onClick={() => toggleDropdown(module.key!)} 
+                    onClick={() => toggleDropdown(module.key!)}
                     className="w-full text-left p-3 bg-gray-700 rounded flex justify-between"
                   >
                     {module.title}
@@ -502,7 +507,7 @@ const Sidebar = () => {
               {/* Header */}
               <div className="flex justify-between items-center mb-4 border-b pb-4">
                 <h2 className="text-2xl font-bold">Profile Settings</h2>
-                <button 
+                <button
                   onClick={() => setIsModalOpen(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
@@ -528,7 +533,7 @@ const Sidebar = () => {
                     <div className="space-y-2 w-full">
                       <button
                         onClick={triggerFileInput}
-                        style={{ 
+                        style={{
                           backgroundColor: 'rgb(55, 50, 146)',
                           color: 'white',
                         }}
@@ -537,14 +542,14 @@ const Sidebar = () => {
                       >
                         {isUploading ? 'Uploading...' : 'Change Picture'}
                       </button>
-                      
+
                       {uploadError && (
                         <p className="text-sm text-red-600">{uploadError}</p>
                       )}
 
                       <button
                         onClick={removeProfilePicture}
-                        style={{ 
+                        style={{
                           backgroundColor: 'rgb(219, 94, 75)',
                           color: 'white',
                         }}
@@ -585,33 +590,33 @@ const Sidebar = () => {
                         disabled
                       />
                     </div>
-                    
+
                     <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                    <input
-                      type="tel"
-                      value={phoneNumberInput}
-                      onChange={(e) => {
-                        // Auto-format as XXX-XXX-XXXX
-                        const value = e.target.value.replace(/\D/g, '');
-                        let formattedValue = '';
-                        
-                        if (value.length > 0) formattedValue = value.substring(0, 3);
-                        if (value.length > 3) formattedValue += '-' + value.substring(3, 6);
-                        if (value.length > 6) formattedValue += '-' + value.substring(6, 10);
-                        
-                        setPhoneNumberInput(formattedValue);
-                        if (errors.phone) setErrors({...errors, phone: undefined});
-                      }}
-                      className={`w-full border rounded p-2 ${
-                        errors.phone ? "border-red-500" : ""
-                      }`}
-                      placeholder="XXX-XXX-XXXX"
-                      maxLength={12} // 3-3-4 Format for Phone Number
-                    />
-                    {errors.phone && (
-                      <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
-                    )}
+                      <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                      <input
+                        type="tel"
+                        value={phoneNumberInput}
+                        onChange={(e) => {
+                          // Auto-format as XXX-XXX-XXXX
+                          const value = e.target.value.replace(/\D/g, '');
+                          let formattedValue = '';
+
+                          if (value.length > 0) formattedValue = value.substring(0, 3);
+                          if (value.length > 3) formattedValue += '-' + value.substring(3, 6);
+                          if (value.length > 6) formattedValue += '-' + value.substring(6, 10);
+
+                          setPhoneNumberInput(formattedValue);
+                          if (errors.phone) setErrors({ ...errors, phone: undefined });
+                        }}
+                        className={`w-full border rounded p-2 ${
+                          errors.phone ? "border-red-500" : ""
+                        }`}
+                        placeholder="XXX-XXX-XXXX"
+                        maxLength={12} // 3-3-4 Format for Phone Number
+                      />
+                      {errors.phone && (
+                        <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                      )}
                     </div>
 
                     <div className="space-y-1">
@@ -624,10 +629,10 @@ const Sidebar = () => {
                           errors.location ? "border-red-500" : ""
                         }`}
                         placeholder="Country"
-                        />
-                        {errors.location && (
-                          <p className="text-red-500 text-xs mt-1">{errors.location}</p>
-                        )}
+                      />
+                      {errors.location && (
+                        <p className="text-red-500 text-xs mt-1">{errors.location}</p>
+                      )}
                     </div>
 
                     <div className="space-y-1">
@@ -749,7 +754,7 @@ const Sidebar = () => {
                 </button>
                 <button
                   type="button"
-                  style={{ 
+                  style={{
                     backgroundColor: 'rgb(55, 50, 146)',
                     color: 'white',
                   }}

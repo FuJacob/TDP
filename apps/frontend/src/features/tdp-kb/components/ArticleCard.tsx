@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { articleProps } from './dummy';
 import { Link } from 'react-router-dom';
+import { Heart, MessageCircle, Share2 } from 'lucide-react'; // if you're using Lucide icons
 
 export const ArticleCard: React.FC<articleProps> = (props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,37 +19,50 @@ export const ArticleCard: React.FC<articleProps> = (props) => {
   return (
     <>
       {/* Card */}
-       <div 
+      <div 
         onClick={() => setIsModalOpen(true)}
         className="border p-4 rounded shadow-sm hover:shadow-md transition-shadow w-full h-[300px] overflow-hidden cursor-pointer relative"
       >
-
-      <p className="text-sm text-gray-600 mb-1 truncate">
-        <span className="font-semibold">Category:</span> {category}
-      </p>
+        <p className="text-sm text-gray-600 mb-1 truncate">
+          <span className="font-semibold">Category:</span> {category}
+        </p>
         
-      <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
-        {title}
-      </h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
+          {title}
+        </h3>
 
-      <p className="text-sm text-gray-600 mb-1 truncate">
-        <span className="font-semibold">Subtitle:</span> {subtitle}
-      </p>
-      <p className="text-gray-700 mt-2 text-sm line-clamp-3">
-        <span className="font-semibold">Description:</span> {infomation}
-      </p>
+        <p className="text-sm text-gray-600 mb-1 truncate">
+          <span className="font-semibold">Subtitle:</span> {subtitle}
+        </p>
 
-      <div 
+        <p className="text-gray-700 mt-2 text-sm line-clamp-3">
+          <span className="font-semibold">Description:</span> {infomation}
+        </p>
+
+        {/* Like, Comment, Share buttons */}
+        <div className="flex justify-start gap-6 mt-4 text-sm text-blue-600">
+          <button className="flex items-center gap-1 hover:text-red-500">
+            <Heart size={16} /> Like (0)
+          </button>
+          <button className="flex items-center gap-1 hover:text-blue-500">
+            <MessageCircle size={16} /> Comment
+          </button>
+          <button className="flex items-center gap-1 hover:text-blue-500">
+            <Share2 size={16} /> Share
+          </button>
+        </div>
+
+        <div 
           className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-white to-transparent p-2 text-center font-bold"
           style={{ color: 'rgb(55, 50, 146)' }}
         >
-        <Link 
-                to={`/knowledge-base/${handle}`}
-                className="text-blue-600 hover:text-blue-700"
-              >
-                Click to see more...
-              </Link>
-      </div>
+          <Link 
+            to={`/knowledge-base/${handle}`}
+            className="text-blue-600 hover:text-blue-700"
+          >
+            Click to see more...
+          </Link>
+        </div>
       </div>
 
       {/* Modal */}

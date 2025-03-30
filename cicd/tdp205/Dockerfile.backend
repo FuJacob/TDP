@@ -9,7 +9,7 @@ COPY . .
 # TEMP FIX for tslib error (as per Linus)
 RUN sed -i 's/"importHelpers":\s*true/"importHelpers": false/' tsconfig.base.json
 
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # build the backend app
 RUN npx nx build backend --prod

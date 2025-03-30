@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 RUN npx nx build frontend --prod
 

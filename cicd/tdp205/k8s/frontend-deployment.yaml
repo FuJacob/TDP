@@ -1,22 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
-  namespace: test-nginx
+  name: frontend-deployment
   labels:
-    app: nginx
+    app: frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: nginx
+      app: frontend
   template:
     metadata:
       labels:
-        app: nginx
+        app: frontend
     spec:
       containers:
-      - name: nginx
-        image: nginx/latest
+      - name: frontend
+        image: lli453/frontend:latest
         ports:
         - containerPort: 80
+        envFrom:
+        - secretRef:
+            name: frontend-secrets

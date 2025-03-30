@@ -1,22 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
-  namespace: test-nginx
+  name: backend-deployment
   labels:
-    app: nginx
+    app: backend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: backend
   template:
     metadata:
       labels:
-        app: nginx
+        app: backend
     spec:
       containers:
-      - name: nginx
-        image: nginx/latest
+      - name: backend
+        image: lli453/backend:latest
         ports:
-        - containerPort: 80
+        - containerPort: 3000
+        envFrom:
+        - secretRef:
+            name: backend-secrets
+        command: [ "node" ]
+        args: [ "dist/main.js" ]

@@ -1,26 +1,22 @@
 pipeline {
-    // Run on any available agent
     agent any
 
-    // Define environment variables
     environment {
         BRANCH_NAME = 'feat_tdp_205'
-        DOCKER_REGISTRY = 'docker.io/lli453' // e.g., 'docker.io/your-username'
+        DOCKER_REGISTRY = 'lli453'
         // Define Docker credentials ID configured in Jenkins
-        DOCKER_CREDENTIALS = '858b040b-9946-4470-a9c4-849080dc304c'
-        // Get commit hash for tagging
-        GIT_COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        DOCKER_CREDENTIALS = 'docker-credentials'
+
+        // Kubernetes Secret File Credentials (Secret File IDs in Jenkins)
+        K8S_BACKEND_SECRET_FILE_CRED_ID = 'backend-secret'
+        K8S_FRONTEND_SECRET_FILE_CRED_ID = 'frontend-secrets'
+
+        K8S_MANIFEST_DIR = 'cicd/tdp205/k8s' // Path to k8s manifests (deployments, services, ingress)
+        K8S_NAMESPACE = 'tdp205' // Target namespace
     }
 
-    tools {
-        nodejs('23.10.0')
-    }
-
-    // Configure pipeline options
     options {
-        // Timeout for the entire pipeline
         timeout(time: 1, unit: 'HOURS')
-        // Don't allow concurrent builds
         disableConcurrentBuilds()
         skipDefaultCheckout()
         timestamps()
@@ -31,27 +27,14 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Checkout the repository
                         checkout scm
-
-                        // Switch to the required branch
                         sh 'git checkout ${BRANCH_NAME}'
+                        env.GIT_COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
                         error "Failed to checkout repository: ${e.getMessage()}"
                     }
                 }
-            }
-        }
-
-        stage('Install Poetry') {
-            steps {
-                echo 'Installing Poetry...'
-                sh '''
-                curl - sSL https://install.python-poetry.org | python3 -
-                export PATH = /var/jenkins_home /.local / bin: $PATH
-                poetry--version
-                '''
             }
         }
 
@@ -75,7 +58,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'npm run lint'
+                        sh '''
+                        npm run lint
+                        '''
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
                         error "Linting failed: ${e.getMessage()}"
@@ -103,7 +88,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo ${DOCKER_PASS} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USER} --password-stdin"
+                        sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
                     }
                 }
             }
@@ -152,11 +137,15 @@ pipeline {
                         // Push backend images
                         sh """
                         docker push ${DOCKER_REGISTRY}/backend:${GIT_COMMIT_HASH}
+                        docker tag ${DOCKER_REGISTRY}/backend:${GIT_COMMIT_HASH} ${DOCKER_REGISTRY}/backend:latest
+                        docker push ${DOCKER_REGISTRY}/backend:latest
                         """
                         
                         // Push frontend images
                         sh """
                         docker push ${DOCKER_REGISTRY}/frontend:${GIT_COMMIT_HASH}
+                        docker tag ${DOCKER_REGISTRY}/frontend:${GIT_COMMIT_HASH} ${DOCKER_REGISTRY}/frontend:latest
+                        docker push ${DOCKER_REGISTRY}/frontend:latest
                         """
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
@@ -166,13 +155,59 @@ pipeline {
             }
         }
 
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([
+                    file(credentialsId: K8S_BACKEND_SECRET_FILE_CRED_ID, variable: 'BACKEND_SECRET_FILE_PATH'),
+                    file(credentialsId: K8S_FRONTEND_SECRET_FILE_CRED_ID, variable: 'FRONTEND_SECRET_FILE_PATH')
+                ]) {
+                    script {
+                        try {
+                            echo "Applying Kubernetes manifests from Jenkins secrets and ${K8S_MANIFEST_DIR} to namespace ${K8S_NAMESPACE}..."
+
+                            // 1. Apply the secrets managed by Jenkins Secret Files
+                            echo "Applying backend secret file: ${BACKEND_SECRET_FILE_PATH}"
+                            sh "kubectl apply -f ${BACKEND_SECRET_FILE_PATH} -n ${K8S_NAMESPACE}"
+                            echo "Applying frontend secret file: ${FRONTEND_SECRET_FILE_PATH}"
+                            sh "kubectl apply -f ${FRONTEND_SECRET_FILE_PATH} -n ${K8S_NAMESPACE}"
+
+                            // 2. Apply non-secret, non-deployment resources (Services, Ingress) from the repo
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/backend-service.yaml -n ${K8S_NAMESPACE}"
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/frontend-service.yaml -n ${K8S_NAMESPACE}"
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/ingress.yaml -n ${K8S_NAMESPACE}"
+
+                            // 3. Apply deployments from the repo (these now reference the Secrets for env vars)
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/backend-deployment.yaml -n ${K8S_NAMESPACE}"
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/frontend-deployment.yaml -n ${K8S_NAMESPACE}"
+
+                            // 4. Update the image tag for the deployments
+                            echo "Updating deployment images to tag: ${env.GIT_COMMIT_HASH}"
+                            sh """
+                            kubectl set image deployment/backend-deployment \
+                              backend=${DOCKER_REGISTRY}/backend:${env.GIT_COMMIT_HASH} \
+                              --record -n ${K8S_NAMESPACE}
+                            """
+                            sh """
+                            kubectl set image deployment/frontend-deployment \
+                              frontend=${DOCKER_REGISTRY}/frontend:${env.GIT_COMMIT_HASH} \
+                              --record -n ${K8S_NAMESPACE}
+                            """
+
+                            echo "Deployment successful!"
+
+                        } catch (Exception e) {
+                            currentBuild.result = 'FAILURE'
+                            error "Kubernetes deployment failed: ${e.getMessage()}"
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    // Post-build actions
     post {
         always {
-            sh 'docker logout ${DOCKER_REGISTRY}'
-            // Clean workspace after build
+            sh 'docker logout'
             cleanWs()
         }
         success {

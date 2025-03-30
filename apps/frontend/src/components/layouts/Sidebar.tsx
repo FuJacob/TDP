@@ -578,6 +578,7 @@ const Sidebar = () => {
                         value={userFnameInput}
                         onChange={handleUserFnameInputChange}
                         className="w-full border rounded p-2"
+                        disabled
                       />
                     </div>
 

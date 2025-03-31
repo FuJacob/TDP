@@ -4,7 +4,7 @@ export type articleProps = {
   title: string,
   category: string,
   subtitle: string,
-  infomation: string,
+  information: string,
 };
 
 export const dummyArticles = [{
@@ -13,68 +13,68 @@ export const dummyArticles = [{
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
-},{
+  information: 'information....'
+}, {
   id: '1',
   handle: 'article1',
   title: 'title...',
   category: 'cat..',
   subtitle: 'sub...',
-  infomation: 'information....'
+  information: 'information....'
 },];

@@ -5,6 +5,7 @@ export type articleProps = {
   category: string,
   subtitle: string,
   information: string,
+  createdDate?: string, // Optional field for created date
 };
 
 export const dummyArticles = [{

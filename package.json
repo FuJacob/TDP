@@ -8,7 +8,7 @@
   "scripts": {
     "start:frontend": "nx serve frontend",
     "start:backend": "nx serve backend",
-    "build": "nx run-many --target=build --all",
+    "build": "node_modules/.bin/nx run-many --target=build --all",
     "test": "nx run-many --target=test --all",
     "lint": "nx run-many --target=lint --all"
   },

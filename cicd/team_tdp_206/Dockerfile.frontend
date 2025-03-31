@@ -1,4 +1,4 @@
-# Build Stage - used bullseye instead of alpine
+# Build Stage - used node:18-bullseye for stability
 
 FROM node:18-bullseye AS builder
 
@@ -8,21 +8,13 @@ FROM node:18-bullseye AS builder
 
 WORKDIR /app
 
-
-
-# Copy package.json first for caching optimization
+# Copy package.json files first for caching optimization
 
 COPY package*.json ./
 
+# Install dependencies
 
-
-# Copy node_modules from your local machine (since dependencies are already installed)
-# Change to COPY node_modules ./node_modules
-# Change to RUN npm i to install dependencies
-
-RUN npm i
-
-
+RUN npm install --verbose
 
 # Copy the rest of the app and build it
 
@@ -42,9 +34,7 @@ FROM nginx:alpine
 
 COPY --from=builder /app/dist/apps/frontend /usr/share/nginx/html
 
-
-
-# Expose port 4000 based on .env
+# Expose port 4000
 
 EXPOSE 4000
 

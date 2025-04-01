@@ -1,0 +1,209 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('checkout') {
+
+            steps {
+
+                git branch: 'feat_tdp_206', url: 'https://github.com/anshjindal/tdp-tender-discovery-platform'
+
+            }
+
+        }
+
+
+
+        stage('install dependences') {
+
+            steps {
+
+                dir('apps/backend') {
+
+                    sh 'npm install'
+
+                }
+
+                dir('apps/frontend') {
+
+                    sh 'npm install'
+
+                }
+
+            }
+
+        }
+
+
+
+        stage('test') {
+
+            steps {
+
+                dir('apps/backend') {
+
+                    sh 'npm test'
+
+                }
+
+                dir('apps/frontend') {
+
+                    sh 'npm run test'
+
+                }
+
+            }
+
+        }
+
+
+
+        stage('build backend, frontend') {
+
+            steps {
+
+                dir('apps/backend') {
+
+                    sh 'npm run build'
+
+                }
+
+                dir('apps/frontend') {
+
+                    sh 'npm run build'
+
+                }
+
+            }
+
+        }
+
+
+
+        stage('build images') {
+
+            steps {
+
+                script {
+
+                    // Build Backend Docker image
+
+                    sh 'docker build -t gcr.io/your-gcp-project-id/tdp-backend:latest -f cicd/team_tdp_206/Dockerfile.backend .'
+
+                    // Build Frontend Docker image
+
+                    sh 'docker build -t gcr.io/your-gcp-project-id/tdp-frontend:latest -f cicd/team_tdp_206/Dockerfile.frontend .'
+
+                }
+
+            }
+
+        }
+
+
+
+        stage('push images') {
+
+            steps {
+
+                script {
+
+                    // Push backend Docker image to container registry
+
+                    sh 'docker push gcr.io/your-gcp-project-id/tdp-backend:latest'
+
+                    // Push frontend Docker image to container registry
+
+                    sh 'docker push gcr.io/your-gcp-project-id/tdp-frontend:latest'
+
+                }
+
+            }
+
+        }
+
+
+
+        stage('deployment') {
+
+            steps {
+
+                container('gcloud') {
+
+                    dir('cicd/team_tdp_206/k8s') {
+
+                        sh 'gcloud auth activate-service-account --key-file /path/to/your-service-account-key.json'
+
+                        sh 'gcloud config set project your-gcp-project-id'
+
+                        sh 'gcloud container clusters get-credentials your-gke-cluster-name --region=your-gke-cluster-zone'
+
+
+
+                        // Apply Kubernetes deployment and service configurations
+
+                        sh 'kubectl apply -f backend-deployment.yaml'
+
+                        sh 'kubectl apply -f backend-service.yaml'
+
+                        sh 'kubectl apply -f frontend-deployment.yaml'
+
+                        sh 'kubectl apply -f frontend-service.yaml'
+
+                        sh 'kubectl apply -f ingress.yaml'
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+
+
+
+        stage('services') {
+
+            steps {
+
+                container('gcloud') {
+
+                    dir('cicd/team_tdp_206/k8s') {
+
+                        script {
+
+                            try {
+
+                                // Expose backend and frontend services
+
+                                sh 'kubectl expose deployment backend --type=ClusterIP --name=backend-service'
+
+                                sh 'kubectl expose deployment frontend --type=LoadBalancer --name=frontend-service'
+
+                            } catch (Exception e) {
+
+                                echo "Service already exists, skipping creation."
+
+                            }
+
+                        }
+
+                        // Output LoadBalancer IP for frontend service
+
+                        sh "kubectl get service/frontend-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+}

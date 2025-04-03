@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { articleProps } from './dummy';
 import { Link } from 'react-router-dom';
+import { Heart, MessageCircle, Share2 } from 'lucide-react'; // if you're using Lucide icons
 
 export const ArticleCard: React.FC<articleProps> = (props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,10 +46,22 @@ export const ArticleCard: React.FC<articleProps> = (props) => {
           <p className="text-sm text-gray-500 mt-2">
             Created Date: {new Date(createdDate || Date.now()).toLocaleDateString()}
           </p>
-        </div>
 
+          {/* Like, Comment, Share buttons */}
+          <div className="flex justify-start gap-6 mt-4 text-sm text-blue-600">
+            <button className="flex items-center gap-1 hover:text-red-500">
+              <Heart size={16} /> Like (0)
+            </button>
+            <button className="flex items-center gap-1 hover:text-blue-500">
+              <MessageCircle size={16} /> Comment
+            </button>
+            <button className="flex items-center gap-1 hover:text-blue-500">
+              <Share2 size={16} /> Share
+            </button>
+          </div>
+        </div>
         <div
-          className="mt-auto pt-2 text-center font-bold border-t border-gray-200" // Adjusted styling
+          className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-white to-transparent p-2 text-center font-bold"
           style={{ color: 'rgb(55, 50, 146)' }}
         >
           <Link

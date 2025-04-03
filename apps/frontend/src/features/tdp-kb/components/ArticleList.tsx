@@ -1,16 +1,8 @@
 import React from 'react';
 import { ArticleCard } from './ArticleCard';
-
-interface Article {
-  id: number;
-  title: string;
-  summary?: string;
-  category?: string;
-  createdDate?: string;
-}
-
+import { articleProps } from './dummy';
 interface ArticleListProps {
-  articles: Article[];
+  articles: articleProps[];
 }
 
 const ArticleList: React.FC<ArticleListProps> = ({ articles }) => {
@@ -19,9 +11,12 @@ const ArticleList: React.FC<ArticleListProps> = ({ articles }) => {
       {articles.map(article => (
         <ArticleCard
           key={article.id}
+          id={article.id}
+          handle={article.handle}
           title={article.title}
-          summary={article.summary}
           category={article.category}
+          subtitle={article.subtitle}
+          information={article.information}
           createdDate={article.createdDate}
         />
       ))}

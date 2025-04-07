@@ -1,94 +1,67 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 import {
   getOpenTenderNoticesFromDB,
   TenderNoticeInterface
-} from '../../../api/api'
-import { placeholderTenderData } from './dummy';
-import '../../../styles/styles.css'
-
-
-// This component will be rendered is data is ot yet available
-const PlaceholderTable = ({ data }: { data: string[] }) => {
-  const rows = 10;
-  const cols = 10;
-  const headers = Array.from({ length: cols }, (_, i) => `text ${i + 1}`);
-
-  return (
-    <table className="table-placeholder">
-      <thead>
-        <tr>
-          {headers.map((header) => (
-            <th key={header}>
-              <span className="skeleton-text">{header}</span>
-            </th>
-          ))}
-        </tr>
-      </thead>
-      {/* TODO: Use placeholderTenderData to render the placeholder table */}
-      <tbody>
-        {Array.from({ length: rows }).map((_, rowIndex) => (
-          <tr key={rowIndex}>
-            {Array.from({ length: cols }).map((_, colIndex) => (
-              <td key={colIndex}>
-                <span className="skeleton-text"> {data[rowIndex * cols + colIndex]}</span>
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
-
-
+} from "../../api/api";
 
 export function App() {
-
-  const [tableData, setTableData] = useState<TenderNoticeInterface[]>([])
+  const [tableData, setTableData] = useState<TenderNoticeInterface[]>([]);
 
   useEffect(() => {
-    const getOpenTenderNoticesData = async function () {
-      setTableData(await getOpenTenderNoticesFromDB())
-    }
-    getOpenTenderNoticesData()
-  }, [])
+    const getOpenTenderNoticesData = async () => {
+      setTableData(await getOpenTenderNoticesFromDB());
+    };
+    getOpenTenderNoticesData();
+  }, []);
 
   const TenderTable = ({ data }: { data: any[] }) => {
-    const headers = Object.keys(data[0])
+    const headers = Object.keys(data[0] || {});
 
     return (
-      <table className="table-placeholder">
-        <thead>
-          <tr>
-            {headers.map((header) => (
-              <th key={header}>{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, index) => (
-            <tr key={index}>
-              {headers.map((header, cellIndex) => (
-                <td key={cellIndex}>
-                  <div className="max-h-12 overflow-y-auto">{row[header]}</div>
-                </td>
+      // Responsive container
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100 text-gray-700">
+              {headers.map((header) => (
+                <th
+                  key={header}
+                  className="border border-gray-300 px-4 py-2 text-left"
+                >
+                  {header}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    )
-  }
+          </thead>
+
+          <tbody>
+            {data.map((row, rowIndex) => (
+              <tr key={rowIndex} className="hover:bg-gray-50">
+                {headers.map((header, cellIndex) => (
+                  <td key={cellIndex} className="border border-gray-300 px-4 py-2 align-top">
+                    {/* Wrapping text in a container that can scroll vertically if needed */}
+                    <div className="max-h-16 overflow-y-auto break-words">
+                      {row[header]}
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   return (
-    <>
+    <div className="p-4">
       {tableData && tableData.length > 0 ? (
         <TenderTable data={tableData} />
       ) : (
-        <PlaceholderTable data={placeholderTenderData} />
+        <p className="text-gray-600">No data found.</p>
       )}
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

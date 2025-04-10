@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import {
-  getOpenTenderNoticesFromDB,
-  TenderNoticeInterface
-} from "../../api/api";
+import { 
+  getOpenTenderNoticesFromDB, 
+  TenderNoticeInterface 
+} from "../../../api/api";
 
 export function App() {
   const [tableData, setTableData] = useState<TenderNoticeInterface[]>([]);

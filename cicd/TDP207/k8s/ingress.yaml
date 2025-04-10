@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tdp-ingress
+  namespace: tdp207
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: tdp207.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: tdp-frontend-service
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: tdp-backend-service
+            port:
+              number: 80

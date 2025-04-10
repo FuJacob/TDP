@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdp-frontend-deployment
+  namespace: tdp207
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tdp-frontend
+  template:
+    metadata:
+      labels:
+        app: tdp-frontend
+    spec:
+      containers:
+      - name: tdp-frontend
+        image: docker.io/tdp207/tdp-frontend:latest
+        ports:
+        - containerPort: 80

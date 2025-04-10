@@ -1,7 +1,74 @@
+/** 
+* Eric Njanga (Apr 10, 2025)
+* -------
+* TO: @tony @anch
+* NOTE: I commented out these files to allow front-end conflicts to be resolved. Please take care of these conflict whenever you have time
+*
+*
+//<<<<<<< feat_tdp_205
+// define image names dynamically using commit SHA
+def DOCKER_IMAGE_BACKEND = "nebulaakamrul/backend-service:${env.GIT_COMMIT}"
+def DOCKER_IMAGE_FRONTEND = "nebulaakamrul/frontend-service:${env.GIT_COMMIT}"
+
+//=======
+//>>>>>>> feat_tdp_205
 pipeline {
     agent any
 
     environment {
+//<<<<<<< feat_tdp_205
+        DOCKER_HUB_USERNAME = 'nebulaakamrul'
+    }
+
+    stages {
+        stage('Docker Build - Backend') {
+            steps {
+                dir('cicd/tdp205') {
+                    script {
+                        sh "docker build -f Dockerfile.backend -t ${DOCKER_IMAGE_BACKEND} ../.."
+                    }
+                }
+            }
+        }
+
+        stage('Docker Push - Backend') {
+            when {
+                branch 'main' 
+            }
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_HUB_PASSWORD')]) {
+                        sh """
+                            echo $DOCKER_HUB_PASSWORD | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin
+                            docker push ${DOCKER_IMAGE_BACKEND}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build - Frontend') {
+            steps {
+                dir('cicd/tdp205') {
+                    script {
+                        sh "docker build -f Dockerfile.frontend -t ${DOCKER_IMAGE_FRONTEND} ../.."
+                    }
+                }
+            }
+        }
+
+        stage('Docker Push - Frontend') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_HUB_PASSWORD')]) {
+                        sh """
+                            echo $DOCKER_HUB_PASSWORD | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin
+                            docker push ${DOCKER_IMAGE_FRONTEND}
+                        """
+//=======
         BRANCH_NAME = 'feat_tdp_205'
         DOCKER_REGISTRY = 'lli453'
         // Define Docker credentials ID configured in Jenkins
@@ -199,6 +266,7 @@ pipeline {
                             currentBuild.result = 'FAILURE'
                             error "Kubernetes deployment failed: ${e.getMessage()}"
                         }
+//>>>>>>> feat_tdp_205
                     }
                 }
             }
@@ -207,6 +275,11 @@ pipeline {
 
     post {
         always {
+//<<<<<<< feat_tdp_205
+            echo 'Pipeline execution finished.'
+            cleanWs()
+        }
+//=======
             sh 'docker logout'
             cleanWs()
         }
@@ -216,5 +289,7 @@ pipeline {
         failure {
             echo 'Pipeline failed!'
         }
+//>>>>>>> feat_tdp_205
     }
 }
+**/

@@ -1,0 +1,25 @@
+# node modules and dist folders
+node_modules
+dist
+
+# system & IDE
+.DS_Store
+.vscode
+*.log
+
+# git
+.git
+.gitignore
+
+# test & coverage
+apps-e2e
+coverage
+
+# docker-related files
+Dockerfile
+Dockerfile.*
+docker-compose*
+
+# env files
+.env
+*.env

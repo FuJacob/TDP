@@ -1,11 +1,22 @@
+/** 
+* Eric Njanga (Apr 10, 2025)
+* -------
+* TO: @tony @anch
+* NOTE: I commented out these files to allow front-end conflicts to be resolved. Please take care of these conflict whenever you have time
+*
+*
+//<<<<<<< feat_tdp_205
 // define image names dynamically using commit SHA
 def DOCKER_IMAGE_BACKEND = "nebulaakamrul/backend-service:${env.GIT_COMMIT}"
 def DOCKER_IMAGE_FRONTEND = "nebulaakamrul/frontend-service:${env.GIT_COMMIT}"
 
+//=======
+//>>>>>>> feat_tdp_205
 pipeline {
     agent any
 
     environment {
+//<<<<<<< feat_tdp_205
         DOCKER_HUB_USERNAME = 'nebulaakamrul'
     }
 
@@ -57,6 +68,205 @@ pipeline {
                             echo $DOCKER_HUB_PASSWORD | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin
                             docker push ${DOCKER_IMAGE_FRONTEND}
                         """
+//=======
+        BRANCH_NAME = 'feat_tdp_205'
+        DOCKER_REGISTRY = 'lli453'
+        // Define Docker credentials ID configured in Jenkins
+        DOCKER_CREDENTIALS = 'docker-credentials'
+
+        // Kubernetes Secret File Credentials (Secret File IDs in Jenkins)
+        K8S_BACKEND_SECRET_FILE_CRED_ID = 'backend-secret'
+        K8S_FRONTEND_SECRET_FILE_CRED_ID = 'frontend-secrets'
+
+        K8S_MANIFEST_DIR = 'cicd/tdp205/k8s' // Path to k8s manifests (deployments, services, ingress)
+        K8S_NAMESPACE = 'tdp205' // Target namespace
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        disableConcurrentBuilds()
+        skipDefaultCheckout()
+        timestamps()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    try {
+                        checkout scm
+                        sh 'git checkout ${BRANCH_NAME}'
+                        env.GIT_COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Failed to checkout repository: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                        npm ci
+                        pip install flake8
+                        '''
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Failed to install dependencies: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                        npm run lint
+                        '''
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Linting failed: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    try {
+                        // Run tests
+                        // sh 'npm run test'
+                        echo 'Bypassing test stage for demo purposes'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Tests failed: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            parallel {
+                stage('Build Backend') {
+                    steps {
+                        script {
+                            try {
+                                sh """
+                                docker build -t ${DOCKER_REGISTRY}/backend:${GIT_COMMIT_HASH} \
+                                           -f cicd/tdp205/Dockerfile.backend .
+                                """
+                            } catch (Exception e) {
+                                currentBuild.result = 'FAILURE'
+                                error "Backend Docker build failed: ${e.getMessage()}"
+                            }
+                        }
+                    }
+                }
+                
+                stage('Build Frontend') {
+                    steps {
+                        script {
+                            try {
+                                sh """
+                                docker build -t ${DOCKER_REGISTRY}/frontend:${GIT_COMMIT_HASH} \
+                                           -f cicd/tdp205/Dockerfile.frontend .
+                                """
+                            } catch (Exception e) {
+                                currentBuild.result = 'FAILURE'
+                                error "Frontend Docker build failed: ${e.getMessage()}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Images') {
+            steps {
+                script {
+                    try {
+                        // Push backend images
+                        sh """
+                        docker push ${DOCKER_REGISTRY}/backend:${GIT_COMMIT_HASH}
+                        docker tag ${DOCKER_REGISTRY}/backend:${GIT_COMMIT_HASH} ${DOCKER_REGISTRY}/backend:latest
+                        docker push ${DOCKER_REGISTRY}/backend:latest
+                        """
+                        
+                        // Push frontend images
+                        sh """
+                        docker push ${DOCKER_REGISTRY}/frontend:${GIT_COMMIT_HASH}
+                        docker tag ${DOCKER_REGISTRY}/frontend:${GIT_COMMIT_HASH} ${DOCKER_REGISTRY}/frontend:latest
+                        docker push ${DOCKER_REGISTRY}/frontend:latest
+                        """
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Failed to push Docker images: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([
+                    file(credentialsId: K8S_BACKEND_SECRET_FILE_CRED_ID, variable: 'BACKEND_SECRET_FILE_PATH'),
+                    file(credentialsId: K8S_FRONTEND_SECRET_FILE_CRED_ID, variable: 'FRONTEND_SECRET_FILE_PATH')
+                ]) {
+                    script {
+                        try {
+                            echo "Applying Kubernetes manifests from Jenkins secrets and ${K8S_MANIFEST_DIR} to namespace ${K8S_NAMESPACE}..."
+
+                            // 1. Apply the secrets managed by Jenkins Secret Files
+                            echo "Applying backend secret file: ${BACKEND_SECRET_FILE_PATH}"
+                            sh "kubectl apply -f ${BACKEND_SECRET_FILE_PATH} -n ${K8S_NAMESPACE}"
+                            echo "Applying frontend secret file: ${FRONTEND_SECRET_FILE_PATH}"
+                            sh "kubectl apply -f ${FRONTEND_SECRET_FILE_PATH} -n ${K8S_NAMESPACE}"
+
+                            // 2. Apply non-secret, non-deployment resources (Services, Ingress) from the repo
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/backend-service.yaml -n ${K8S_NAMESPACE}"
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/frontend-service.yaml -n ${K8S_NAMESPACE}"
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/ingress.yaml -n ${K8S_NAMESPACE}"
+
+                            // 3. Apply deployments from the repo (these now reference the Secrets for env vars)
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/backend-deployment.yaml -n ${K8S_NAMESPACE}"
+                            sh "kubectl apply -f ${K8S_MANIFEST_DIR}/frontend-deployment.yaml -n ${K8S_NAMESPACE}"
+
+                            // 4. Update the image tag for the deployments
+                            echo "Updating deployment images to tag: ${env.GIT_COMMIT_HASH}"
+                            sh """
+                            kubectl set image deployment/backend-deployment \
+                              backend=${DOCKER_REGISTRY}/backend:${env.GIT_COMMIT_HASH} \
+                              --record -n ${K8S_NAMESPACE}
+                            """
+                            sh """
+                            kubectl set image deployment/frontend-deployment \
+                              frontend=${DOCKER_REGISTRY}/frontend:${env.GIT_COMMIT_HASH} \
+                              --record -n ${K8S_NAMESPACE}
+                            """
+
+                            echo "Deployment successful!"
+
+                        } catch (Exception e) {
+                            currentBuild.result = 'FAILURE'
+                            error "Kubernetes deployment failed: ${e.getMessage()}"
+                        }
+//>>>>>>> feat_tdp_205
                     }
                 }
             }
@@ -65,8 +275,21 @@ pipeline {
 
     post {
         always {
+//<<<<<<< feat_tdp_205
             echo 'Pipeline execution finished.'
             cleanWs()
         }
+//=======
+            sh 'docker logout'
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+//>>>>>>> feat_tdp_205
     }
 }
+**/

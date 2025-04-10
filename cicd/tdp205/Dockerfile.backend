@@ -1,23 +1,48 @@
+#
+# Eric Njanga (Apr 10, 2025)
+# -------
+# TO: @tony @anch
+# NOTE: I commented out these files to allow front-end conflicts to be resolved. Please take care of these conflict whenever you have time
+#
+#
+#<<<<<<< feat_tdp_205
+#=======
+# backend dockerfile
+#>>>>>>> feat_tdp_205
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+#<<<<<<< feat_tdp_205
 # copy entire repo to give Nx proper context
+#=======
+# copy entire repo (you need the whole workspace for nx to build)
+#>>>>>>> feat_tdp_205
 COPY . .
 
 # TEMP FIX for tslib error (as per Linus)
 RUN sed -i 's/"importHelpers":\s*true/"importHelpers": false/' tsconfig.base.json
 
+#<<<<<<< feat_tdp_205
 # install all dependencies
 RUN npm install
 
 # build backend
 RUN npx nx build backend
 
+#=======
+RUN npm ci --ignore-scripts
+
+# build the backend app
+RUN npx nx build backend --prod
+
+# run the backend
+#>>>>>>> feat_tdp_205
 FROM node:22-alpine
 
 WORKDIR /app
 
+#<<<<<<< feat_tdp_205
 # copy build output and env file
 COPY --from=builder /app/dist/apps/backend ./dist
 COPY --from=builder /app/apps/backend/.env ./
@@ -29,3 +54,15 @@ RUN npm install --only=production
 EXPOSE 3000
 
 CMD ["node", "--env-file=.env", "dist/main.js"]
+#=======
+# copy only the built output and production deps
+COPY --from=builder /app/dist/apps/backend ./dist
+COPY --from=builder /app/dist/apps/backend/package*.json ./
+
+# RUN npm install 
+RUN npm ci --production
+
+EXPOSE 3000
+
+CMD ["node", "--env-file=.env", "dist/main.js"]
+#>>>>>>> feat_tdp_205

@@ -1,4 +1,13 @@
+#
+# Eric Njanga (Apr 10, 2025)
+# -------
+# TO: @tony @anch
+# NOTE: I commented out these files to allow front-end conflicts to be resolved. Please take care of these conflict whenever you have time
+#
+#
+
 # frontend dockerfile
+#<<<<<<< feat_tdp_205
 FROM node:18-alpine AS builder
 
 WORKDIR /app
@@ -14,6 +23,17 @@ COPY apps/frontend ./apps/frontend
 # install dependencies and build
 RUN npm install
 RUN npx nx build frontend
+#=======
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm ci --ignore-scripts
+
+RUN npx nx build frontend --prod
+#>>>>>>> feat_tdp_205
 
 # build with nginx
 FROM nginx:alpine
@@ -25,4 +45,8 @@ COPY --from=builder /app/dist/apps/frontend /usr/share/nginx/html
 EXPOSE 80
 
 # start nginx server
+#<<<<<<< feat_tdp_205
 CMD ["nginx", "-g", "daemon off;"]
+#=======
+CMD ["nginx", "-g", "daemon off;"]
+#>>>>>>> feat_tdp_205

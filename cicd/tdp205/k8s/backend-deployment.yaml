@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: lli453/backend:latest
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - secretRef:
+            name: backend-secrets
+        command: [ "node" ]
+        args: [ "dist/main.js" ]

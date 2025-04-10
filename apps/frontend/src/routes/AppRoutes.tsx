@@ -5,6 +5,7 @@ import {AiSearchTender} from "../features/tdp-lg/pages/AiTenderSearch";
 import CaMain from "../features/tdp-ca/pages/ca-main";
 import BmMain from "../features/tdp-bm/pages/bm-main";
 import KbMain from "../features/tdp-kb/pages/kb-main";
+import ArticleDetail from "../features/tdp-kb/components/ArticleDetail";
 import ForgotResetPassword from "../auth/pages/ForgotResetPassword";
 import Login from "../auth/pages/login";
 import SignUp from "../auth/pages/SignUp";
@@ -40,10 +41,14 @@ const AppRoutes = () => {
       <Route path="/bidupdates" element={<BidStatusUpdates />} />
       <Route path="tender/:subId" element={<TenderDetails />} />
 
+      {/* TDP-KB Feature Routes */}
+      <Route path="kb" element={<Navigate to="/kb/kbmain" />} />
+      <Route path="kb/kbmain" element={<KbMain />} />
+      <Route path="knowledge-base/:articleHandle" element={<ArticleDetail />} />
+
       {/* Other Feature Routes */}
       <Route path="ca/camain" element={<CaMain />} />
       <Route path="bm/bmmain" element={<BmMain />} />
-      <Route path="kb/kbmain" element={<KbMain />} />
     </Route>
   </Routes>
   );

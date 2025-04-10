@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: backend:1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_URL
+          value: "postgres://your-db-user:your-db-password@your-db-host:5432/your-db-name"
+        - name: API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: api-key
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

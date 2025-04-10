@@ -1,13 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx-service
-  namespace: test-nginx
+  name: backend-service
+  labels:
+    app: backend
 spec:
+  type: ClusterIP
   selector:
-    app: nginx
+    app: backend
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: NodePort
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000

@@ -4,8 +4,10 @@ export type articleProps = {
   title: string,
   category: string,
   subtitle: string,
-  infomation: string,
+  information: string,
+  createdDate?: string, // Optional field for created date
 };
+
 
 export const dummyArticles: articleProps[] = [
   {
@@ -126,3 +128,4 @@ export const dummyArticles: articleProps[] = [
       `
   }
 ];
+

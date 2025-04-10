@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: tdp205
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: tdp205-strip-api-prefix@kubernetescrd
+spec:
+  rules:
+  - host: ddemotdp.linusrouter.tk # IMPORTANT: Replace with your actual domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 3000
+---
+# Define the Traefik Middleware to strip the /api prefix
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-api-prefix
+  namespace: tdp205 # MUST be in the same namespace as the Ingress
+spec:
+  stripPrefix:
+    prefixes:
+    - /api
